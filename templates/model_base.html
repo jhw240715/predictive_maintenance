@@ -1,0 +1,41 @@
+<!-- templates/models/model_base.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/model_comparison.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="comparison-container">
+    <!-- 상단 모델 네비게이션 -->
+    <div class="model-nav">
+        <a href="{% url 'maintenance:logistic' %}" class="model-nav-btn {% if selected_model == 'logistic' %}active{% endif %}">
+            <span class="model-icon">🔄</span>로지스틱 회귀
+        </a>
+        <a href="{% url 'maintenance:knn' %}" class="model-nav-btn {% if selected_model == 'knn' %}active{% endif %}">
+            <span class="model-icon">🎯</span>KNN
+        </a>
+        <a href="{% url 'maintenance:svm' %}" class="model-nav-btn {% if selected_model == 'svm' %}active{% endif %}">
+            <span class="model-icon">💡</span>SVM
+        </a>
+        <a href="{% url 'maintenance:decision_tree' %}" class="model-nav-btn {% if selected_model == 'decision_tree' %}active{% endif %}">
+            <span class="model-icon">🌳</span>의사결정트리
+        </a>
+        <a href="{% url 'maintenance:random_forest' %}" class="model-nav-btn {% if selected_model == 'random_forest' %}active{% endif %}">
+            <span class="model-icon">🌲</span>랜덤포레스트
+        </a>
+        <a href="{% url 'maintenance:xgboost' %}" class="model-nav-btn {% if selected_model == 'xgboost' %}active{% endif %}">
+            <span class="model-icon">🚀</span>XGBoost
+        </a>
+        <a href="{% url 'maintenance:mlp' %}" class="model-nav-btn {% if selected_model == 'mlp' %}active{% endif %}">
+            <span class="model-icon">🧠</span>MLP
+        </a>
+    </div>
+
+    <div class="model-content">
+        {% block model_content %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

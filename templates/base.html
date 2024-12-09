@@ -6,20 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}예측 유지보수 시스템{% endblock %}</title>
     {% load static %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a href="{% url 'maintenance:main' %}">메인</a></li>
-            <li><a href="{% url 'maintenance:comparison' %}">모델 비교</a></li>
-            <li><a href="{% url 'maintenance:analysis' %}">고장 분석</a></li>
-            <li><a href="{% url 'maintenance:predict' %}">예측하기</a></li>
-        </ul>
-    </nav>
+    <header>
+        <h1><a href="{% url 'maintenance:main' %}">예측 유지보수 시스템</a></h1>
+    </header>
     <main>
         {% block content %}
         {% endblock %}
     </main>
+    <footer>
+        <p>copyright © QR Code 2024</p>
+    </footer>
 </body>
 </html>

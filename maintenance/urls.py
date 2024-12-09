@@ -2,11 +2,15 @@
 from django.urls import path
 from . import views
 
-app_name = 'maintenance'    # URL 네임스페이스 설정
+app_name = 'maintenance'
 
 urlpatterns = [
-    path('', views.main_page, name='main'),                        # 메인 페이지
-    path('comparison/', views.model_comparison, name='comparison'), # 모델 비교 페이지
-    path('analysis/', views.failure_analysis, name='analysis'),     # 고장 분석 페이지
-    path('predict/', views.predict, name='predict'),               # 예측 페이지
+    path('', views.main_page, name='main'),
+    path('logistic/', views.logistic_regression, name='logistic'),
+    path('knn/', views.knn_model, name='knn'),
+    path('svm/', views.svm_model, name='svm'),
+    path('decision-tree/', views.decision_tree, name='decision_tree'),
+    path('random-forest/', views.random_forest, name='random_forest'),
+    path('xgboost/', views.xgboost, name='xgboost'),
+    path('mlp/', views.mlp_model, name='mlp'),
 ]

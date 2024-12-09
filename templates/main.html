@@ -1,0 +1,69 @@
+<!-- templates/main.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="content-wrapper">
+        <!-- 왼쪽 섹션 -->
+        <div class="left-section">
+            <div class="qr-code">
+                <img src="{% static 'images/qr-code.png' %}" alt="QR Code">
+            </div>
+            <div class="description">
+                <p>&lt;캐글 데이터 설명&gt;</p>
+                <p>=&gt; 기계 유지 보수와 관련된 데이터다.</p>
+                <p>&lt;모델 종류 평가 및 예측방안&gt;</p>
+                <p>=&gt; 사용한 모델들을 비교해서 가장 좋은 성능을 판단</p>
+            </div>
+        </div>
+
+        <!-- 오른쪽 섹션 -->
+        <div class="right-section">
+            <div class="model-section">
+                <h2>&lt;머신러닝&gt;</h2>
+                <div class="model-grid">
+                    <a href="{% url 'maintenance:logistic' %}" class="model-btn">
+                        <span class="model-icon">🔄</span>
+                        <span>로지스틱 회귀</span>
+                    </a>
+                    <a href="{% url 'maintenance:knn' %}" class="model-btn">
+                        <span class="model-icon">🎯</span>
+                        <span>KNN</span>
+                    </a>
+                    <a href="{% url 'maintenance:svm' %}" class="model-btn">
+                        <span class="model-icon">💡</span>
+                        <span>SVM</span>
+                    </a>
+                    <a href="{% url 'maintenance:decision_tree' %}" class="model-btn">
+                        <span class="model-icon">🌳</span>
+                        <span>의사결정트리</span>
+                    </a>
+                    <a href="{% url 'maintenance:random_forest' %}" class="model-btn">
+                        <span class="model-icon">🌲</span>
+                        <span>랜덤포레스트</span>
+                    </a>
+                    <a href="{% url 'maintenance:xgboost' %}" class="model-btn">
+                        <span class="model-icon">🚀</span>
+                        <span>XGBoost</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="model-section">
+                <h2>&lt;딥러닝&gt;</h2>
+                <div class="model-grid">
+                    <a href="{% url 'maintenance:mlp' %}" class="model-btn">
+                        <span class="model-icon">🧠</span>
+                        <span>MLP</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

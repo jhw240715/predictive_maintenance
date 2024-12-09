@@ -1,0 +1,71 @@
+<!-- templates/model_comparison.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/model_comparison.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="comparison-container">
+    <!-- 상단 모델 네비게이션 -->
+    <div class="model-nav">
+        <a href="{% url 'maintenance:logistic' %}" class="model-nav-btn {% if selected_model == 'logistic' %}active{% endif %}">
+            <span class="model-icon">🔄</span>로지스틱 회귀
+        </a>
+        <a href="{% url 'maintenance:knn' %}" class="model-nav-btn {% if selected_model == 'knn' %}active{% endif %}">
+            <span class="model-icon">🎯</span>KNN
+        </a>
+        <a href="{% url 'maintenance:svm' %}" class="model-nav-btn {% if selected_model == 'svm' %}active{% endif %}">
+            <span class="model-icon">💡</span>SVM
+        </a>
+        <a href="{% url 'maintenance:decision_tree' %}" class="model-nav-btn {% if selected_model == 'decision_tree' %}active{% endif %}">
+            <span class="model-icon">🌳</span>의사결정트리
+        </a>
+        <a href="{% url 'maintenance:random_forest' %}" class="model-nav-btn {% if selected_model == 'random_forest' %}active{% endif %}">
+            <span class="model-icon">🌲</span>랜덤포레스트
+        </a>
+        <a href="{% url 'maintenance:xgboost' %}" class="model-nav-btn {% if selected_model == 'xgboost' %}active{% endif %}">
+            <span class="model-icon">🚀</span>XGBoost
+        </a>
+        <a href="{% url 'maintenance:mlp' %}" class="model-nav-btn {% if selected_model == 'mlp' %}active{% endif %}">
+            <span class="model-icon">🧠</span>MLP
+        </a>
+    </div>
+
+    <div class="result-section">
+        <!-- 왼쪽: ROC 커브 그래프 -->
+        <div class="graph-section">
+            <div class="graph-box">
+                <div id="roc-curve"></div>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 성능 지표 -->
+        <div class="metrics-section">
+            <div class="metrics-container">
+                <div class="metric-box">
+                    <span>정확도</span>
+                    <span class="value">85.5%</span>
+                </div>
+                <div class="metric-box">
+                    <span>정밀도</span>
+                    <span class="value">88.9%</span>
+                </div>
+                <div class="metric-box">
+                    <span>F1 Score</span>
+                    <span class="value">87.2%</span>
+                </div>
+                <div class="metric-box">
+                    <span>재현율</span>
+                    <span class="value">86.7%</span>
+                </div>
+            </div>
+            <div class="explanation-box">
+                <div class="explanation-title">설명란</div>
+                <p>해결방안 및 모델 종합 평가</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
