@@ -46,19 +46,19 @@
             <div class="metrics-container">
                 <div class="metric-box">
                     <span>정확도</span>
-                    <span class="value">85.5%</span>
+                    <span class="value">{{ metrics.accuracy }}</span>
                 </div>
                 <div class="metric-box">
                     <span>정밀도</span>
-                    <span class="value">88.9%</span>
+                    <span class="value">{{ metrics.precision }}</span>
                 </div>
                 <div class="metric-box">
                     <span>F1 Score</span>
-                    <span class="value">87.2%</span>
+                    <span class="value">{{ metrics.f1_score }}</span>
                 </div>
                 <div class="metric-box">
                     <span>재현율</span>
-                    <span class="value">86.7%</span>
+                    <span class="value">{{ metrics.recall }}</span>
                 </div>
             </div>
             <div class="explanation-box">

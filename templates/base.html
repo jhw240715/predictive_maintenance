@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}예측 유지보수 시스템{% endblock %}</title>
+    <title>{% block title %}Quality Rate Code{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -12,14 +12,14 @@
 </head>
 <body>
     <header>
-        <h1><a href="{% url 'maintenance:main' %}">예측 유지보수 시스템</a></h1>
+        <h1><a href="{% url 'maintenance:main' %}">Quality Rate Code</a></h1>
     </header>
     <main>
         {% block content %}
         {% endblock %}
     </main>
     <footer>
-        <p>copyright © QR Code 2024</p>
+        <p>CopyRight © QR Code 2024</p>
     </footer>
 </body>
 </html>

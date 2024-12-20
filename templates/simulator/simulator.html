@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}QRCode 밀링 머신 교육용 시뮬레이터{% endblock %}
+
+{% block content %}
+<div class="simulator-container">
+    <!-- QR 코드 모달 -->
+    <div id="qrModal" class="modal-container hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">웹사이트 바로가기</span>
+                <div class="modal-buttons">
+                    <button id="downloadQr" class="download-button" aria-label="다운로드">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 16L4 17C4 18.6569 5.34315 20 7 20L17 20C18.6569 20 20 18.6569 20 17L20 16M16 12L12 16M12 16L8 12M12 16L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button id="closeModal" class="close-button" aria-label="닫기">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <img src="{% static 'images/qr-code.png' %}" alt="QR Code" id="modalQrCode">
+                <div class="modal-description">
+                    <p class="scan-text">QR 코드를 스캔하여 웹사이트에 접속하세요</p>
+                    <p class="scan-subtext">스마트폰 카메라를 QR 코드에 대주면 자동으로 인식됩니다.</p>
+                    <div class="modal-hints">
+                        <p>클릭하여 확대/축소 가능 • QR코드로 바로가기 가능</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 페이지 좌상단 QR 코드 -->
+    <div class="qr-code-container">
+        <img src="{% static 'images/qr-code.png' %}" alt="QR Code" id="qrCodeImage">
+    </div>
+
+    <div class="simulator-layout">
+        <!-- 좌측: 밀링머신 시각화 -->
+        <div class="simulator-left">
+            <div class="visualization-card">
+                <div class="card-header">
+                    <h2>밀링머신 상태</h2>
+                </div>
+                <div class="card-body">
+                    <div id="machine-visualization"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측: 제어 및 모니터링 패널 -->
+        <div class="simulator-right">
+            <!-- 교육 가이드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>교육 가이드</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="guide-list">
+                        <li>공정 온도는 항상 공기 온도보다 높아야 합니다.</li>
+                        <li>회전 속도 1380rpm 미만일 때 열 발산 실패가 발생할 수 있습니다.</li>
+                        <li>공구 마모는 200분 이상이면 교체가 필요합니다.</li>
+                        <li>토크와 회전 속도로 계산된 전력이 3500W~9000W 범위를 벗어나면 실패할 수 있습니다.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 생산 작동 파라미터 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>생산 작동 파라미터</h2>
+                </div>
+                <div class="card-body">
+                    <form id="parameter-form" class="parameter-panel">
+                        {% csrf_token %}
+                        <div class="form-grid">
+                            <!-- 제품 유형 -->
+                            <div class="form-group">
+                                <label>제품 유형</label>
+                                <select name="type" required>
+                                    <option value="L">Low (L)</option>
+                                    <option value="M">Medium (M)</option>
+                                    <option value="H">High (H)</option>
+                                </select>
+                            </div>
+
+                            <!-- 공기 온도 -->
+                            <div class="form-group">
+                                <label>공기 온도 [K]</label>
+                                <input type="number" name="air_temperature" 
+                                       min="295.3" max="304.5" step="0.1" required>
+                            </div>
+
+                            <!-- 공정 온도 -->
+                            <div class="form-group">
+                                <label>공정 온도 [K]</label>
+                                <input type="number" name="process_temperature" 
+                                       min="305.7" max="313.8" step="0.1" required>
+                            </div>
+
+                            <!-- 회전 속도 -->
+                            <div class="form-group">
+                                <label>회전 속도 [rpm]</label>
+                                <input type="number" name="rotational_speed" 
+                                       min="1168" max="2886" required>
+                            </div>
+
+                            <!-- 토크 -->
+                            <div class="form-group">
+                                <label>토크 [Nm]</label>
+                                <input type="number" name="torque" 
+                                       min="3.8" max="76.6" step="0.1" required>
+                            </div>
+
+                            <!-- 공구 마모 -->
+                            <div class="form-group">
+                                <label>공구 마모 [min]</label>
+                                <input type="number" name="tool_wear" 
+                                       min="0" max="253" required>
+                            </div>
+
+                            <button type="submit" class="submit-button">예측 실행</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 고장 상태 모니터링 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>고장 상태 모니터링</h2>
+                </div>
+                <div class="card-body">
+                    <div id="prediction-result" class="hidden">
+                        <div class="result-text">
+                            <p>예측 결과: <span id="prediction-text"></span></p>
+                            <p>신뢰도: <span id="prediction-probability"></span></p>
+                        </div>
+                        <div class="result-timestamp">
+                            <span id="prediction-timestamp"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/simulator.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/three.js' %}"></script>
+<script src="{% static 'js/simulator3D.js' %}"></script>
+<script src="{% static 'js/simulator.js' %}"></script>
+{% endblock %}
