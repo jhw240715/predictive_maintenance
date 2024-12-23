@@ -7,19 +7,67 @@
     <title>{% block title %}Quality Rate Code{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <header>
-        <h1><a href="{% url 'maintenance:main' %}">Quality Rate Code</a></h1>
+        <div class="header-container">
+            <div class="header-content">
+                <!-- QR 코드 박스: 로고와 클릭 가능한 영역 -->
+                <div class="qr-code-box" id="qrCodeTrigger">
+                    <img src="{% static 'images/qr-code.png' %}" alt="QR Code" id="qrCodeImage">
+                </div>
+                
+                <!-- 중앙에 위치할 제목 -->
+                <div class="title-section">
+                    <h1><a href="{% url 'maintenance:main' %}">Quality Rate Code</a></h1>
+                </div>
+            </div>
+        </div>
     </header>
+
+    <!-- QR 코드 모달: 기본적으로 숨김 상태 -->
+    <div id="qrModal" class="modal-container">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-buttons">
+                    <button id="downloadQr" class="download-button" aria-label="다운로드">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button id="closeModal" class="close-button" aria-label="닫기">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="qr-image-wrapper">
+                    <img src="{% static 'images/qr-code.png' %}" alt="QR Code" id="modalQrCode">
+                </div>
+                <div class="modal-description">
+                    <p class="scan-text">QR 코드를 스캔하여 웹사이트로 접속하세요</p>
+                    <p class="scan-subtext">스마트폰 카메라로 스캔하면 자동으로 인식됩니다</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <main>
         {% block content %}
         {% endblock %}
     </main>
+
     <footer>
         <p>CopyRight © QR Code 2024</p>
     </footer>
+
+    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/base.js' %}"></script>
 </body>
 </html>
