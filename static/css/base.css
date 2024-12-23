@@ -1,34 +1,219 @@
 /* static/css/base.css */
-* {
+
+/* 기본 리셋과 전체 페이지 설정 */
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Pretendard', sans-serif;
 }
 
 body {
     min-height: 100vh;
-    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Pretendard', sans-serif;
+    background-color: #f3f4f6;
 }
 
-header {
-    border-bottom: 1px solid #e5e7eb;
-}
-
-header h1 {
+/* 헤더 스타일링 */
+.header-container {
+    width: 100%;
     background-color: white;
-    font-size: 25pt;
-    padding: 15px;
-    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-header h1 a {
+.header-content {
+    max-width: 1800px;
+    margin: 0 auto;
+    height: 4rem;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* QR 코드 박스 스타일링 */
+.qr-code-box {
+    position: absolute;
+    left: 2rem;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 4px;
+    z-index: 2;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qr-code-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#qrCodeImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* 제목 섹션 스타일링 */
+.title-section {
+    flex: 1;
+    text-align: center;
+    z-index: 1;
+}
+
+.title-section h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.title-section h1 a {
     color: #2563eb;
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-footer {
-    padding: 1rem;
+/* 모달 컨테이너 스타일링 */
+.modal-container {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    opacity: 0;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+/* 모달 콘텐츠 스타일링 */
+.modal-content {
+    background-color: white;
+    padding: 0.5rem 1.25rem 1.25rem;
+    /* 상단 패딩 감소 */
+    border-radius: 12px;
+    width: 90%;
+    max-width: 320px;
+    position: relative;
+    transform: translateY(10px);
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 모달 헤더 스타일링 */
+.modal-header {
+    position: relative;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0;
+}
+
+/* 모달 버튼 그룹 스타일링 */
+.modal-buttons {
+    display: flex;
+    gap: 0.25rem;
+}
+
+/* QR 코드 이미지 래퍼 스타일링 */
+.qr-image-wrapper {
+    width: 240px;
+    height: 240px;
+    margin: 0.5rem auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+#modalQrCode {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 모달 설명 텍스트 스타일링 */
+.modal-description {
     text-align: center;
-    border-top: 1px solid #e5e7eb;
+    padding: 0 1rem;
+}
+
+.scan-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.scan-subtext {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* 모달 버튼 스타일링 */
+.download-button,
+.close-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.download-button:hover,
+.close-button:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* 모달 표시 상태 클래스 */
+.modal-visible {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .header-content {
+        padding: 0 1rem;
+    }
+
+    .qr-code-box {
+        left: 1rem;
+        width: 45px;
+        height: 45px;
+    }
+
+    .title-section h1 {
+        font-size: 1.25rem;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
 }
