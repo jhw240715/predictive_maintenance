@@ -7,6 +7,12 @@ import joblib
 import numpy as np
 from datetime import datetime
 
+import json
+import csv
+import os
+from django.conf import settings
+
+
 def main_page(request):
     return render(request, 'main.html')
 
@@ -21,25 +27,113 @@ def model_result(request, model_name):
     return render(request, 'model_comparison.html', context)
 
 def logistic_regression(request):
-    return model_result(request, 'logistic')
+    # csv 파일 경로 설정
+    csv_path = os.path.join(
+        settings.BASE_DIR,
+        'maintenance/ml/reports/logistic_classification_report.csv'
+    )
+
+    # csv 파일 읽기
+    metrics = []
+    with open(csv_path,'r',encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            metrics.append({
+                'name': row['name'],
+                'precision': float(row['precision'])*100,
+                'recall': float(row['recall'])*100,
+                'f1_score': float(row['f1_score'])*100,
+            })
+
+
+    context = {
+        'selected_model': 'logistic',
+        'report_data': metrics,
+        'explanation': '로지스틱 회귀 모델의 성능 분석 결과입니다.'
+    }
+
+    return render(request, 'model_comparison.html', context)
 
 def knn_model(request):
-    # KNN 모델 학습 및 평가
-    knn = KNNModel()
-    metrics = knn.train_and_evaluate()
-    
+    # csv 파일 경로 설정
+    csv_path = os.path.join(
+        settings.BASE_DIR,
+        'maintenance/ml/reports/knn_classification_report.csv'
+    )
+
+    # csv 파일 읽기
+    metrics = []
+    with open(csv_path, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            metrics.append({
+                'name': row['name'],
+                'precision': float(row['precision']) * 100,
+                'recall': float(row['recall']) * 100,
+                'f1_score': float(row['f1_score']) * 100,
+            })
+
     context = {
         'selected_model': 'knn',
-        'metrics': metrics,
-        'explanation': 'KNN 모델의 성능 분석 결과입니다.'
+        'report_data': metrics,
+        'explanation': 'k-최근접 이웃 알고리즘 모델의 성능 분석 결과입니다.'
     }
+
     return render(request, 'model_comparison.html', context)
 
 def svm_model(request):
-    return model_result(request, 'svm')
+    # csv 파일 경로 설정
+    csv_path = os.path.join(
+        settings.BASE_DIR,
+        'maintenance/ml/reports/svm_classification_report.csv'
+    )
+
+    # csv 파일 읽기
+    metrics = []
+    with open(csv_path, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            metrics.append({
+                'name': row['name'],
+                'precision': float(row['precision']) * 100,
+                'recall': float(row['recall']) * 100,
+                'f1_score': float(row['f1_score']) * 100,
+            })
+
+    context = {
+        'selected_model': 'svm',
+        'report_data': metrics,
+        'explanation': '서포트 벡터 머신 모델의 성능 분석 결과입니다.'
+    }
+
+    return render(request, 'model_comparison.html', context)
 
 def decision_tree(request):
-    return model_result(request, 'decision_tree')
+    # csv 파일 경로 설정
+    csv_path = os.path.join(
+        settings.BASE_DIR,
+        'maintenance/ml/reports/dtc_classification_report.csv'
+    )
+
+    # csv 파일 읽기
+    metrics = []
+    with open(csv_path, 'r', encoding='utf-8') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            metrics.append({
+                'name': row['name'],
+                'precision': float(row['precision']) * 100,
+                'recall': float(row['recall']) * 100,
+                'f1_score': float(row['f1_score']) * 100,
+            })
+
+    context = {
+        'selected_model': 'decision_tree',
+        'report_data': metrics,
+        'explanation': '의사결정나무 모델의 성능 분석 결과입니다.'
+    }
+
+    return render(request, 'model_comparison.html', context)
 
 
 def random_forest(request):
