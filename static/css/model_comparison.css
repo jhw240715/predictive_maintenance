@@ -93,8 +93,48 @@
     padding: 15px;
 }
 
+.metrics-table {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.metrics-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.metrics-table th,
+.metrics-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.metrics-table th {
+    font-weight: 500;
+    color: #666;
+}
+
+.metrics-table td:last-child {
+    text-align: right;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.explanation-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
 @media (max-width: 768px) {
     .result-section {
         grid-template-columns: 1fr;
+    }
+    .metrics-table th,
+    .metrics-table td {
+        padding: 8px;
     }
 }

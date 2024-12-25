@@ -28,9 +28,6 @@
         <a href="{% url 'maintenance:xgboost' %}" class="model-nav-btn {% if selected_model == 'xgboost' %}active{% endif %}">
             <span class="model-icon">🚀</span>XGBoost
         </a>
-        <a href="{% url 'maintenance:mlp' %}" class="model-nav-btn {% if selected_model == 'mlp' %}active{% endif %}">
-            <span class="model-icon">🧠</span>MLP
-        </a>
     </div>
 
     <div class="result-section">
@@ -44,30 +41,37 @@
         <!-- 오른쪽: 성능 지표 -->
         <div class="metrics-section">
             <div class="metrics-table">
-                <h3>정확도: 0.948</h3>
+                <h3>모델 성능 지표</h3>
                 <table>
                     <thead>
                         <tr>
-                            <th>고장 유형</th>
-                            <th>정밀도</th>
-                            <th>재현율</th>
-                            <th>F1 Score</th>
+                            <th>평가 지표</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for metric in report_data %}
                         <tr>
-                            <td>{{ metric.name }}</td>
-                            <td>{{ metric.precision|floatformat:2 }}%</td>
-                            <td>{{ metric.recall|floatformat:2 }}%</td>
-                            <td>{{ metric.f1_score|floatformat:2 }}%</td>
+                            <td>정확도 (Accuracy)</td>
+                            <td>{{ accuracy|floatformat:2 }}%</td>
                         </tr>
-                        {% endfor %}
+                        <tr>
+                            <td>정밀도 (Precision)</td>
+                            <td>{{ precision|floatformat:2 }}%</td>
+                        </tr>
+                        <tr>
+                            <td>재현율 (Recall)</td>
+                            <td>{{ recall|floatformat:2 }}%</td>
+                        </tr>
+                        <tr>
+                            <td>F1 Score</td>
+                            <td>{{ f1_score|floatformat:2 }}%</td>
+                        </tr>
                     </tbody>
                 </table>
                 <div class="explanation-box">
-                <div class="explanation-title">설명란</div>
-                <p>해결방안 및 모델 종합 평가</p>
+                    <div class="explanation-title">모델 설명</div>
+                    <p>{{ explanation }}</p>
+                </div>
             </div>
         </div>
     </div>
