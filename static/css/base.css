@@ -1,34 +1,343 @@
 /* static/css/base.css */
-* {
+
+/* 기본 리셋과 전체 페이지 설정 */
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Pretendard', sans-serif;
 }
 
 body {
     min-height: 100vh;
-    background-color: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Pretendard', sans-serif;
+    background-color: #f3f4f6;
+    padding-top: 64px;
+    margin: 0 auto;
+    width: 1200px;
 }
 
-header {
-    border-bottom: 1px solid #e5e7eb;
-}
-
-header h1 {
+/* 헤더 스타일링 */
+.header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
     background-color: white;
-    font-size: 25pt;
-    padding: 15px;
-    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    min-width: 1200px;
 }
 
-header h1 a {
+/* 헤더 콘텐츠 패딩 조정 */
+.header-content {
+    position: relative;
+    width: 1200px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 20px 0 80px;
+    display: flex;
+    align-items: center;
+}
+
+/* QR 코드 박스 스타일링 */
+.qr-code-box {
+    position: fixed;
+    left: 35px;
+    top: 10px;
+    width: 45px;
+    height: 45px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 3px;
+    z-index: 1001;
+    cursor: pointer;
+}
+
+.qr-code-box:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#qrCodeImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* 제목 섹션 스타일링 */
+.title-section {
+    flex: 1;
+    text-align: center;
+    padding: 0 45px;  /* QR 코드 크기만큼 패딩 */
+}
+
+.title-section h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.title-section h1 a {
     color: #2563eb;
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-footer {
-    padding: 1rem;
+/* 모달 컨테이너 스타일링 */
+.modal-container {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    opacity: 0;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+/* 모달 콘텐츠 스타일링 */
+.modal-content {
+    background-color: white;
+    padding: 0.5rem 1.25rem 1.25rem;
+    border-radius: 12px;
+    width: 320px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* 모달 헤더 스타일링 */
+.modal-header {
+    position: relative;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.modal-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #111827;
+    margin-left: 0.5rem;
+}
+
+/* 모달 버튼 그룹 스타일링 */
+.modal-buttons {
+    display: flex;
+    gap: 0.25rem;
+}
+
+/* QR 코드 이미지 래퍼 스타일링 */
+.qr-image-wrapper {
+    width: 240px;
+    height: 240px;
+    margin: 0.5rem auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+#modalQrCode {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+/* 모달 설명 텍스트 스타일링 */
+.modal-description {
     text-align: center;
-    border-top: 1px solid #e5e7eb;
+    padding: 0 0.8rem;
+    margin-top: -0.5rem;
+}
+
+.scan-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.3rem;
+}
+
+.scan-subtext {
+    font-size: 0.65rem;
+    color: #6b7280;
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.scan-hint {
+    font-size: 0.65rem;
+    color: #1e40af;
+    line-height: 1.2;
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 모달 버튼 스타일링 */
+.download-button,
+.close-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.download-button:hover,
+.close-button:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* 모달 표시 상태 클래스 */
+.modal-visible {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .header-container {
+        min-width: 320px;
+    }
+    
+    .header-content {
+        padding: 0 4rem;
+    }
+
+    .title-section h1 {
+        font-size: 1.25rem;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+}
+
+/* 사이드바 컨테이너 조정 */
+.sidebar {
+    padding-top: 75px !important;
+    width: 250px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background-color: white;
+    border-right: 1px solid #e5e7eb;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+/* 메인 콘텐츠 영역 조정 */
+.main-content {
+    position: relative;
+    width: 950px;
+    padding: 20px;
+    margin-left: 250px;
+    margin-top: 64px;
+}
+
+/* 탭 스크롤 컨테이너 조정 */
+.tab-scroll-container {
+    position: relative;
+    left: calc(50% - 600px);
+    width: 1200px;
+    margin-bottom: 2rem;
+    padding-left: 20px;
+    padding-right: 20px;
+    overflow-x: hidden;
+}
+
+/* 탭 카드 컨테이너 */
+.tab-cards {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    width: 1200px;
+    margin: 0;
+}
+
+/* 탭 카드 개별 스타일 */
+.tab-card {
+    width: 200px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* 토글 탭 카드 특별 스타일 */
+.tab-card.toggle-tab {
+    min-width: 200px;
+    height: 60px;
+}
+
+/* 탭 카드 내부 텍스트 스타일 */
+.tab-card span, 
+.tab-card p, 
+.tab-card h2 {
+    margin: 0;
+    text-align: center;
+}
+
+/* 컨텐츠 섹션 스타일링 */
+.content-section {
+    margin-top: 2rem;
+    padding: 0;
+    width: 100%;
+}
+
+/* 크롤바 스타일링 */
+.tab-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.tab-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.tab-scroll-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.tab-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }

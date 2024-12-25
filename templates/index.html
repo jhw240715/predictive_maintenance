@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 왼쪽 사이드바 -->
+    <div class="sidebar">
+        <!-- 머신러닝 모델 섹션 -->
+        <div class="sidebar-item">
+            <!-- 토글 버튼 -->
+            <div class="toggle-btn" id="mlModelToggle">
+                <span class="menu-icon">🤖</span>
+                <span>머신러닝 모델</span>
+                <span class="arrow">▼</span>
+            </div>
+            
+            <!-- 모델 리스트 -->
+            <div class="model-list" id="modelList">
+                <!-- 각 모델 항목들 -->
+                <a href="{% url 'maintenance:logistic' %}" class="model-item">
+                    <span class="menu-icon">🔄</span>
+                    <span>로지스틱 회귀</span>
+                </a>
+                <a href="{% url 'maintenance:knn' %}" class="model-item">
+                    <span class="menu-icon">📊</span>
+                    <span>KNN</span>
+                </a>
+                <a href="{% url 'maintenance:svm' %}" class="model-item">
+                    <span class="menu-icon">⚡</span>
+                    <span>SVM</span>
+                </a>
+                <a href="{% url 'maintenance:decision_tree' %}" class="model-item">
+                    <span class="menu-icon">🌳</span>
+                    <span>의사결정트리</span>
+                </a>
+                <a href="{% url 'maintenance:random_forest' %}" class="model-item">
+                    <span class="menu-icon">🌲</span>
+                    <span>랜덤포레스트</span>
+                </a>
+                <a href="{% url 'maintenance:xgboost' %}" class="model-item">
+                    <span class="menu-icon">🚀</span>
+                    <span>XGBoost</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 시뮬레이터 버튼 -->
+        <div class="simulator-btn">
+            <a href="{% url 'maintenance:simulator' %}" class="model-item">
+                <span class="menu-icon">📚</span>
+                <span>밀링 머신 고장
+예방 시뮬레이터</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <div class="main-content">
+        <!-- 탭 카드 스크롤 영역 -->
+        <div class="tab-scroll-container">
+            <div class="tab-cards">
+                <!-- 각 탭 카드들 -->
+                <button class="tab-card active" data-content="webpage">
+                    <div class="card-content">
+                        <div class="card-icon">📋</div>
+                        <div class="card-title">웹페이지에 대한 설명</div>
+                    </div>
+                </button>
+                <button class="tab-card" data-content="milling">
+                    <div class="card-content">
+                        <div class="card-icon">🔧</div>
+                        <div class="card-title">밀링 머신 설명</div>
+                    </div>
+                </button>
+                <button class="tab-card" data-content="analysis">
+                    <div class="card-content">
+                        <div class="card-icon">⚠️</div>
+                        <div class="card-title">밀링 머신 고장 유형 및 분석</div>
+                    </div>
+                </button>
+                <button class="tab-card" data-content="prevention">
+                    <div class="card-content">
+                        <div class="card-icon">🎓</div>
+                        <div class="card-title">밀링 머신 고장 예방 교육</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- 컨텐츠 섹션들 -->
+        <div class="content-section active" id="webpage">
+            <h2>웹페이지에 대한 설명</h2>
+            <p>본 웹페이지는 밀링 머신의 품질 관리를 위한 머신러닝 기반 예측 시스템입니다. 다양한 머신러닝 모델을 통해 고장을 예측하고, 예방적 유지보수를 가능하게 합니다.</p>
+            <div class="feature-list">
+                <h3>주요 기능</h3>
+                <p>- 6가지 머신러닝 모델을 통한 고장 예측</p>
+                <p>- 실시간 모니터링 및 분석</p>
+                <p>- 예방적 유지보수 가이드 제공</p>
+            </div>
+        </div>
+
+        <div class="content-section" id="milling">
+            <h2>밀링 머신 설명</h2>
+            <p>밀링 머신은 금속이나 다른 재료를 깎아내는 공작 기계입니다. 고정밀 가공이 가능하며, 다양한 형상의 제품을 생산할 수 있습니다.</p>
+        </div>
+
+        <div class="content-section" id="analysis">
+            <h2>밀링 머신 고장 유형 및 분석</h2>
+            <p>밀링 머신의 주요 고장 유형과 그에 대한 분석 내용을 제공합니다. 각 고장 유형별 특징과 대처 방안을 확인할 수 있습니다.</p>
+        </div>
+
+        <div class="content-section" id="prevention">
+            <h2>밀링 머신 고장 예방 교육</h2>
+            <p>밀링 머신의 효율적인 운용과 고장 예방을 위한 교육 내용을 제공합니다. 실제 사례를 바탕으로 한 실무 중심의 교육이 이루어집니다.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}
