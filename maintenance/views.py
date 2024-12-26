@@ -15,10 +15,6 @@ def index(request):
     """메인 랜딩 페이지"""
     return render(request, 'index.html')
 
-def quality_main(request):
-    """품질 분석 메인 페이지"""
-    return render(request, 'quality_main.html')
-
 def model_result(request, model_name):
     model_info = {
         'logistic': {
@@ -63,9 +59,7 @@ def model_result(request, model_name):
         with open(csv_path, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
             data = list(reader)
-            # accuracy는 마지막 행의 'accuracy' 값
             accuracy = float(data[-1].get('accuracy', 0)) * 100
-            # 나머지 지표들은 'weighted avg' 행의 값들
             weighted_avg = next(row for row in data if row['name'] == 'weighted avg')
             
             context = {
@@ -80,7 +74,6 @@ def model_result(request, model_name):
             return render(request, 'model_comparison.html', context)
             
     except Exception as e:
-        # 에러 발생시 기본값 반환
         context = {
             'selected_model': model_name,
             'accuracy': 0,
