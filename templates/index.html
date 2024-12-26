@@ -52,8 +52,7 @@
         <div class="simulator-btn">
             <a href="{% url 'maintenance:simulator' %}" class="model-item">
                 <span class="menu-icon">📚</span>
-                <span>밀링 머신 고장
-예방 시뮬레이터</span>
+                <span>밀링 머신 고장 예방 시뮬레이터</span>
             </a>
         </div>
     </div>
@@ -94,28 +93,160 @@
         <!-- 컨텐츠 섹션들 -->
         <div class="content-section active" id="webpage">
             <h2>웹페이지에 대한 설명</h2>
-            <p>본 웹페이지는 밀링 머신의 품질 관리를 위한 머신러닝 기반 예측 시스템입니다. 다양한 머신러닝 모델을 통해 고장을 예측하고, 예방적 유지보수를 가능하게 합니다.</p>
+            <p>본 웹페이지는 실제 밀링 머신에서 수집된 데이터셋을 활용한 예측 유지보수 시스템입니다. 10,000개 이상의 실제 센서 데이터를 기반으로 <br> 6가지 머신러닝 모델을 비교 분석했으며, 그 중 가장 높은 성능을 보인 랜덤포레스트 모델을 시뮬레이터에 적용하여 실시간 고장을 예측합니다.</p>
             <div class="feature-list">
                 <h3>주요 기능</h3>
-                <p>- 6가지 머신러닝 모델을 통한 고장 예측</p>
-                <p>- 실시간 모니터링 및 분석</p>
-                <p>- 예방적 유지보수 가이드 제공</p>
+                <p>- 6가지 머신러닝 모델 성능 분석</p>
+                <ul style="list-style-type: circle; margin-left: 20px;">
+                    <li><small>정확도(Accuracy): 전체 예측 중 올바르게 예측한 비율
+                        <br>→ 예: 100건의 예측 중 98건을 올바르게 예측하면 98% 정확도</small></li>
+                    <li><small>정밀도(Precision): 고장이라고 예측한 것 중 실제 고장인 비율
+                        <br>→ 예: 고장이라고 예측한 10건 중 9건이 실제 고장이면 90% 정밀도</small></li>
+                    <li><small>재현율(Recall): 실제 고장 중 고장이라고 예측한 비율
+                        <br>→ 예: 실제 고장 20건 중 18건을 고장이라고 예측하면 90% 재현율</small></li>
+                    <li><small>F1-Score: 정밀도와 재현율의 조화평균
+                        <br>→ 정밀도와 재현율을 함께 고려한 종합 점수</small></li>
+                    <li><small>ROC 곡선: 모델의 성능을 시각화한 그래프
+                        <br>→ 곡선이 왼쪽 위 모서리에 가까울수록 좋은 성능</small></li>
+                    <li><small>혼동 행렬: 예측과 실제 결과를 비교한 표
+                        <br>→ 정상/고장 예측이 얼마나 정확했는지 한눈에 파악</small></li>
+                </ul>
+                <p>- 사용자 입력 기반 시뮬레이션</p>
+                <ul style="list-style-type: circle; margin-left: 20px;">
+                    <li><small>공기 온도 (21.6°C ~ 26.2°C)</small></li>
+                    <li><small>공정 온도 (35.2°C ~ 43.8°C)</small></li>
+                    <li><small>회전 속도 (1168 ~ 2886 RPM)</small></li>
+                    <li><small>토크 (3.8 ~ 76.6 Nm)</small></li>
+                    <li><small>공구 마모 (0 ~ 253분)</small></li>
+                </ul>
+                <p>- 밀링 머신 상태 시각화 (정상: 초록색 / 고장: 빨간색)</p>
+                <p>- 예측 결과 기반 유지보수 일정 최적화</p>
             </div>
         </div>
 
         <div class="content-section" id="milling">
             <h2>밀링 머신 설명</h2>
-            <p>밀링 머신은 금속이나 다른 재료를 깎아내는 공작 기계입니다. 고정밀 가공이 가능하며, 다양한 형상의 제품을 생산할 수 있습니다.</p>
+            <p>밀링 머신은 금속이나 다른 재료를 깎아내는 대표적인 공작 기계이고, 회전하는 공구를 사용하여 다양한 형상의 제품을 정밀하게 가공할 수 있습니다.</p>
+            
+            <div class="feature-list">
+                <h3>주요 구성 요소</h3>
+                <ul>
+                    <li>주축(스핀들)
+                        <br><small>- 공구를 고속으로 회전시키는 핵심 부품</small>
+                        <br><small>- 데이터셋 기준 1168~2886 RPM 범위에서 작동</small>
+                    </li>
+                    <li>공구(엔드밀)
+                        <br><small>- 실제 절삭을 수행하는 날이 달린 공구</small>
+                        <br><small>- 데이터셋 기준 최대 253분까지 사용 기록</small>
+                    </li>
+                    <li>이송장치
+                        <br><small>- 공작물이나 공구를 이동시키는 장치</small>
+                        <br><small>- 토크 데이터로 부하 상태 모니터링</small>
+                    </li>
+                    <li>작업대
+                        <br><small>- 가공할 재료를 고정하는 테이블</small>
+                        <br><small>- 공정 온도를 통해 가공 상태 확인</small>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="feature-list">
+                <h3>핵심 센서 데이터</h3>
+                <p>데이터셋에서 수집된 5가지 핵심 센서 데이터의 의미:</p>
+                <ul>
+                    <li>공기 온도 (Air Temperature)
+                        <br><small>- 측정 범위: 21.6°C ~ 26.2°C</small>
+                        <br><small>- 의미: 26.2°C 초과 시 열 방출 문제 발생 가능성</small>
+                    </li>
+                    <li>공정 온도 (Process Temperature)
+                        <br><small>- 측정 범위: 35.2°C ~ 43.8°C</small>
+                        <br><small>- 의미: 43.8°C 초과 시 공정 실패 위험</small>
+                    </li>
+                    <li>회전 속도 (Rotational Speed)
+                        <br><small>- 측정 범위: 1168 ~ 2886 RPM</small>
+                        <br><small>- 의미: 1168 RPM 미만 시 동력 전달 문제 의심</small>
+                    </li>
+                    <li>토크 (Torque)
+                        <br><small>- 측정 범위: 3.8 ~ 76.6 Nm</small>
+                        <br><small>- 의미: 76.6 Nm 초과 시 과부하 상태</small>
+                    </li>
+                    <li>공구 마모 (Tool Wear)
+                        <br><small>- 측정 범위: 0 ~ 253분</small>
+                        <br><small>- 의미: 240분 초과 시 공구 교체 필요</small>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="content-section" id="analysis">
             <h2>밀링 머신 고장 유형 및 분석</h2>
-            <p>밀링 머신의 주요 고장 유형과 그에 대한 분석 내용을 제공합니다. 각 고장 유형별 특징과 대처 방안을 확인할 수 있습니다.</p>
+            <p>실제 현장에서 발생하는 주요 고장 유형과 데이터셋 기반 분석:</p>
+            <div class="feature-list">
+                <h3>주요 고장 유형</h3>
+                <ul>
+                    <li>공정 실패 (Process Failure)
+                        <br><small>- 현장 증상: 가공 표면 거칠기 증가, 공구 수명 급격한 감소, 절삭 불량</small>
+                        <br><small>- 데이터 특징: 공정 온도 > 43.8°C 또는 토크 > 76.6 Nm</small>
+                        <br><small>- 실제 영향: 제품 품질 불량, 공구 비용 증가, 생산성 저하</small>
+                        <br><small>- 예방 방법: 절삭 속도 조정, 절삭유 공급량 증가, 공구 교체 주기 관리</small>
+                    </li>
+                    <li>열 방출 실패 (Heat Dissipation Failure)
+                        <br><small>- 현장 증상: 작업장 온도 상승, 가공 정밀도 저하, 열 변형</small>
+                        <br><small>- 데이터 특징: 공기 온도 > 26.2°C + 공정 온도 상승</small>
+                        <br><small>- 실제 영향: 열변형으로 인한 수치 정밀도 불량, 작업 환경 악화</small>
+                        <br><small>- 예방 방법: 냉각 시스템 점검, 환기 시설 개선, 작업 시간 조정</small>
+                    </li>
+                    <li>동력 전달 실패 (Power Failure)
+                        <br><small>- 현장 증상: 비정상적인 소음, 진동 발생, 회전 속도 불안정</small>
+                        <br><small>- 데이터 특징: 회전 속도 < 1168 RPM, 불규칙한 토크 변동</small>
+                        <br><small>- 실제 영향: 베어링 손상, 스핀들 고장, 가공 정밀도 저하</small>
+                        <br><small>- 예방 방법: 정기적인 베어링 점검, 벨트 장력 조정, 윤활유 관리</small>
+                    </li>
+                    <li>과부하 (Overstrain Failure)
+                        <br><small>- 현장 증상: 가공 중 과도한 진동, 이상 소음, 스핀들 과열</small>
+                        <br><small>- 데이터 특징: 토크 급상승(> 76.6 Nm) 또는 공구 사용 > 240분</small>
+                        <br><small>- 실제 영향: 공구 파손, 스핀들 모터 손상, 작업 중단</small>
+                        <br><small>- 예방 방법: 적정 절입량 준수, 공구 수명 관리, 부하 모니터링</small>
+                    </li>
+                    <li>공구 마모 (Tool Wear Failure)
+                        <br><small>- 현장 증상: 절삭 저항 증가, 가공면 품질 저하, 치수 정밀도 불량</small>
+                        <br><small>- 데이터 특징: 공구 사용 시간 240분 초과, 토크값 점진적 상승</small>
+                        <br><small>- 실제 영향: 제품 불량률 증가, 생산성 저하, 공구 비용 상승</small>
+                        <br><small>- 예방 방법: 정기적인 공구 검사, 적시 교체, 절삭 조건 최적화</small>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="content-section" id="prevention">
             <h2>밀링 머신 고장 예방 교육</h2>
-            <p>밀링 머신의 효율적인 운용과 고장 예방을 위한 교육 내용을 제공합니다. 실제 사례를 바탕으로 한 실무 중심의 교육이 이루어집니다.</p>
+            <p>밀링 머신의 효율적인 운용과 고장 예방을 위한 실무 지침:</p>
+            <div class="feature-list">
+                <h3>예방 관리 항목</h3>
+                <ul>
+                    <li>일상적인 점검 사항
+                        <br><small>- 작업 시작 전 공구 상태 및 체결 상태 확인</small>
+                        <br><small>- 절삭유 레벨과 상태 점검</small>
+                        <br><small>- 각종 베어링과 이송부의 윤활 상태 확인</small>
+                    </li>
+                    <li>올바른 가공 조건 설정
+                        <br><small>- 재료 특성에 맞는 적절한 절삭 속도 선택</small>
+                        <br><small>- 공구 직경과 재료에 따른 이송 속도 조정</small>
+                        <br><small>- 적정 절입 깊이 준수</small>
+                    </li>
+                    <li>공구 관리
+                        <br><small>- 공구별 권장 수명 시간 준수</small>
+                        <br><small>- 마모도에 따른 적절한 시점의 공구 교체</small>
+                        <br><small>- 올바른 공구 보관 및 취급</small>
+                    </li>
+                    <li>온도 관리
+                        <br><small>- 작업장 온도 적정 범위 유지 (21-26°C)</small>
+                        <br><small>- 충분한 절삭유 공급으로 가공열 제거</small>
+                        <br><small>- 연속 작업 시 적절한 휴식 시간 확보</small>
+                    </li>
+                </ul>
+                <p>시뮬레이터를 통해 고장 예측을 실습해볼 수 있습니다.</p>
+            </div>
         </div>
     </div>
 </div>
