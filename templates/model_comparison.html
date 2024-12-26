@@ -31,47 +31,71 @@
     </div>
 
     <div class="result-section">
-        <!-- 왼쪽: ROC 커브 그래프 -->
-        <div class="graph-section">
-            <div class="graph-box">
-                <div id="roc-curve"></div>
+        <!-- ROC 커브 -->
+        <div class="result-box">
+            <div class="visualization-box">
+                <h3>ROC 커브</h3>
+                <iframe src="{% static graph_file %}" class="analysis-frame" frameborder="0"></iframe>
             </div>
         </div>
 
-        <!-- 오른쪽: 성능 지표 -->
-        <div class="metrics-section">
-            <div class="metrics-table">
+        <!-- 혼동 행렬 -->
+        <div class="result-box">
+            <div class="visualization-box">
+                <h3>혼동 행렬 (Confusion Matrix)</h3>
+                <iframe src="{% static matrix_file %}" class="analysis-frame" frameborder="0"></iframe>
+            </div>
+        </div>
+
+        <!-- 성능 지표 -->
+        <div class="result-box">
+            <div class="metrics-container">
                 <h3>모델 성능 지표</h3>
+                <div class="accuracy-highlight">
+                    <p>정확도(Accuracy): <span>94.81%</span></p>
+                </div>
                 <table>
                     <thead>
                         <tr>
                             <th>평가 지표</th>
-                            <th></th>
+                            <th>정밀도<br><small>(Precision)</small></th>
+                            <th>재현율<br><small>(Recall)</small></th>
+                            <th>F1 Score</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>정확도 (Accuracy)</td>
-                            <td>{{ accuracy|floatformat:2 }}%</td>
+                            <td>정상</td>
+                            <td>{{ report_data.0.precision|floatformat:2 }}%</td>
+                            <td>{{ report_data.0.recall|floatformat:2 }}%</td>
+                            <td>{{ report_data.0.f1_score|floatformat:2 }}%</td>
                         </tr>
                         <tr>
-                            <td>정밀도 (Precision)</td>
-                            <td>{{ precision|floatformat:2 }}%</td>
+                            <td>공구 마모 실패</td>
+                            <td>{{ report_data.1.precision|floatformat:2 }}%</td>
+                            <td>{{ report_data.1.recall|floatformat:2 }}%</td>
+                            <td>{{ report_data.1.f1_score|floatformat:2 }}%</td>
                         </tr>
                         <tr>
-                            <td>재현율 (Recall)</td>
-                            <td>{{ recall|floatformat:2 }}%</td>
+                            <td>열 발산 실패</td>
+                            <td>{{ report_data.2.precision|floatformat:2 }}%</td>
+                            <td>{{ report_data.2.recall|floatformat:2 }}%</td>
+                            <td>{{ report_data.2.f1_score|floatformat:2 }}%</td>
                         </tr>
                         <tr>
-                            <td>F1 Score</td>
-                            <td>{{ f1_score|floatformat:2 }}%</td>
+                            <td>전력 고장</td>
+                            <td>{{ report_data.3.precision|floatformat:2 }}%</td>
+                            <td>{{ report_data.3.recall|floatformat:2 }}%</td>
+                            <td>{{ report_data.3.f1_score|floatformat:2 }}%</td>
+                        </tr>
+                        <tr>
+                            <td>제품 과변형</td>
+                            <td>{{ report_data.4.precision|floatformat:2 }}%</td>
+                            <td>{{ report_data.4.recall|floatformat:2 }}%</td>
+                            <td>{{ report_data.4.f1_score|floatformat:2 }}%</td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="explanation-box">
-                    <div class="explanation-title">모델 설명</div>
-                    <p>{{ explanation }}</p>
-                </div>
             </div>
         </div>
     </div>
