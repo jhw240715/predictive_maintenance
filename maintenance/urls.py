@@ -6,7 +6,6 @@ app_name = 'maintenance'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('quality/', views.quality_main, name='quality_main'),
     path('logistic/', views.logistic_regression, name='logistic'),
     path('knn/', views.knn_model, name='knn'),
     path('svm/', views.svm_model, name='svm'),
