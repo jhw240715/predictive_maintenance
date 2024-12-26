@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}QRCode 밀링 머신 교육용 시뮬레이터{% endblock %}
+
+{% block content %}
+<div class="simulator-container">
+    <div class="simulator-layout">
+        <!-- 좌측: 밀링머신 시각화 -->
+        <div class="simulator-left">
+            <div class="visualization-card">
+                <div class="card-header">
+                    <h2>밀링머신 상태</h2>
+                </div>
+                <div class="card-body">
+                    <div id="machine-visualization"></div>
+                    <!-- WebGL 에러 메시지를 표시할 컨테이너 -->
+                    <div id="webgl-error" class="webgl-error hidden"></div>
+                    <!-- 로딩 인디케이터 -->
+                    <div id="loading-indicator" class="loading-indicator">
+                        <div class="spinner"></div>
+                        <p>3D 모델 로딩 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 우측: 제어 및 모니터링 패널 -->
+        <div class="simulator-right">
+            <!-- 교육 가이드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>교육 가이드</h2>
+                </div>
+                <div class="card-body">
+                    <!-- 교육 목적 -->
+                    <div class="guide-purpose">
+                        <h3>교육 목적</h3>
+                        <p>밀링 머신 작업자들이 적절한 교육 없이 기계를 다룰 경우 <strong>여러 고장이 발생</strong>할 수 있으며, 고장이 발생할 경우 <strong>생산에 차질이 생겨 제조사에 손실</strong>이 발생할 수 있습니다.</p>
+                        <p>본 교육은 작업자가 밀링 머신을 사용할 때 <strong>어떤 부분으로 인해 고장이 발생할 수 있는지를 학습</strong>하여 작업 시 발생할 수 있는 <strong>고장이나 실패를 예방</strong>하고 이를 통해 <strong>제조 과정에서 손실을 최소화</strong>하는 것을 목적으로 합니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 생산 작동 파라미터 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>생산 작동 파라미터</h2>
+                </div>
+                <div class="card-body">
+                    <form id="parameter-form" class="parameter-panel">
+                        {% csrf_token %}
+                        <!-- 제품 유형 선택 -->
+                        <div class="form-group">
+                            <div class="type-tabs">
+                                <button type="button" class="type-tab" data-value="L">LOW</button>
+                                <button type="button" class="type-tab" data-value="M">MEDIUM</button>
+                                <button type="button" class="type-tab" data-value="H">HIGH</button>
+                            </div>
+                            <input type="hidden" name="type" value="L">
+                        </div>
+
+                        <!-- Air Temperature -->
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label class="slider-label">Air Temperature [K]</label>
+                                <span class="slider-value normal" id="air-temperature-value">295.3</span>
+                            </div>
+                            <div class="slider-track normal">
+                                <input type="range" name="Air_Temperature" 
+                                       min="295.3" max="304.5" step="0.1" 
+                                       value="295.3">
+                            </div>
+                        </div>
+
+                        <!-- Process Temperature -->
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label class="slider-label">Process Temperature [K]</label>
+                                <span class="slider-value normal" id="process-temperature-value">305.7</span>
+                            </div>
+                            <div class="slider-track normal">
+                                <input type="range" name="Process_Temperature" 
+                                       min="305.7" max="313.8" step="0.1" 
+                                       value="305.7">
+                            </div>
+                        </div>
+
+                        <!-- Rotational Speed -->
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label class="slider-label">Rotational Speed [rpm]</label>
+                                <span class="slider-value normal" id="rotational-speed-value">1168</span>
+                            </div>
+                            <div class="slider-track normal">
+                                <input type="range" name="Rotational_Speed" 
+                                       min="1168" max="2886" step="1" 
+                                       value="1168">
+                            </div>
+                        </div>
+
+                        <!-- Torque -->
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label class="slider-label">Torque [Nm]</label>
+                                <span class="slider-value normal" id="torque-value">3.8</span>
+                            </div>
+                            <div class="slider-track normal">
+                                <input type="range" name="Torque" 
+                                       min="3.8" max="76.6" step="0.1" 
+                                       value="3.8">
+                            </div>
+                        </div>
+
+                        <!-- Tool Wear -->
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label class="slider-label">Tool Wear [min]</label>
+                                <span class="slider-value normal" id="tool-wear-value">0</span>
+                            </div>
+                            <div class="slider-track normal">
+                                <input type="range" name="Tool_Wear" 
+                                       min="0" max="253" step="1" 
+                                       value="0">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-button">예측 실행</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 고장 상태 모니터링 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>고장 상태 모니터링</h2>
+                </div>
+                <div class="card-body">
+                    <div id="prediction-result" class="hidden">
+                        <div class="result-text">
+                            <p>예측된 상태: <span id="prediction-text"></span></p>
+                            <p>신뢰도: <span id="prediction-probability"></span></p>
+                            <div class="failure-description">
+                                <p>고장 유형 설명:</p>
+                                <ul>
+                                    <li class="status-normal">0: 정상 (Normal)</li>
+                                    <li class="status-twf">1: 공구 마모 실패 (Tool Wear Failure)</li>
+                                    <li class="status-hdf">2: 열 발산 실패 (Heat Dissipation Failure)</li>
+                                    <li class="status-pwf">3: 전력 고장 (Power Failure)</li>
+                                    <li class="status-osf">4: 제품 과변형 (Overstrain Failure)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="result-timestamp">
+                            <span id="prediction-timestamp"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleGuide() {
+    const content = document.getElementById('guide-content');
+    const icon = document.querySelector('.toggle-icon');
+    content.classList.toggle('expanded');
+    icon.textContent = content.classList.contains('expanded') ? '▲' : '▼';
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/simulator.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<!-- ES Module Shims for older browsers -->
+<script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+
+<!-- Import map for Three.js and its modules -->
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.156.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.156.1/examples/jsm/",
+        "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.156.1/examples/jsm/controls/OrbitControls.js"
+    }
+}
+</script>
+
+<!-- simulator.js 파일을 가장 먼저 로드 -->
+<script src="{% static 'js/simulator.js' %}"></script>
+
+<!-- Main initialization script -->
+<script type="module">
+    // Import Three.js and required components
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
+    // Make THREE available globally for compatibility
+    window.THREE = THREE;
+    window.OrbitControls = OrbitControls;
+
+    // Utility functions
+    function checkWebGL() {
+        try {
+            const canvas = document.createElement('canvas');
+            return !!(window.WebGLRenderingContext && 
+                (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+        } catch(e) {
+            return false;
+        }
+    }
+
+    function showErrorMessage(message) {
+        console.error('시뮬레이터 오류:', message);
+        const errorDiv = document.getElementById('webgl-error');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+        hideLoadingIndicator();
+    }
+
+    function hideLoadingIndicator() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+
+    // Main initialization function
+    async function initializeSimulator() {
+        try {
+            // Check WebGL support
+            if (!checkWebGL()) {
+                throw new Error('WebGL이 지원되지 않습니다. 최신 브라우저를 사용하시거나 그래픽 드라이버를 업데이트해주세요.');
+            }
+
+            // Import simulator module
+            const { MillingMachineVisualization } = await import("{% static 'js/simulator3D.js' %}" + '?v=' + Date.now());
+            
+            // Create simulator instance
+            window.millingMachineVisualization = new MillingMachineVisualization('machine-visualization');
+            
+            // Hide loading indicator on success
+            hideLoadingIndicator();
+            
+            console.log('시뮬레이터 초기화 완료');
+            
+        } catch (error) {
+            showErrorMessage(`시뮬레이터 초기화 실패: ${error.message}`);
+            console.error('초기화 상세 오류:', error);
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initializeSimulator);
+</script>
+{% endblock %}

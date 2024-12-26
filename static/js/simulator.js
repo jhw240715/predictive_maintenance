@@ -142,22 +142,37 @@ document.addEventListener('DOMContentLoaded', function () {
         const predictionResult = document.getElementById('prediction-result');
         const predictionText = document.getElementById('prediction-text');
         const predictionProb = document.getElementById('prediction-probability');
+        const timestamp = document.getElementById('prediction-timestamp');
 
-        if (!predictionResult || !predictionText || !predictionProb) {
+        if (!predictionResult || !predictionText || !predictionProb || !timestamp) {
             console.error('예측 결과 표시 요소를 찾을 수 없습니다.');
             return;
         }
 
         predictionResult.classList.remove('hidden');
 
-        // 예측 결과에 따른 상태 클래스 설정
-        const statusClass = getStatusClass(result.prediction);
-        predictionText.className = `prediction-text ${statusClass}`;
-        predictionText.textContent = result.prediction;
+        // 예측 결과 매핑
+        const predictionMap = {
+            0: { text: '정상 (Normal)', class: 'status-normal' },
+            1: { text: '공구 마모 실패 (Tool Wear Failure)', class: 'status-twf' },
+            2: { text: '열 발산 실패 (Heat Dissipation Failure)', class: 'status-hdf' },
+            3: { text: '전력 고장 (Power Failure)', class: 'status-pwf' },
+            4: { text: '제품 과변형 (Overstrain Failure)', class: 'status-osf' }
+        };
+
+        const prediction = predictionMap[result.prediction];
+        
+        // 이전 상태 클래스 제거
+        predictionText.className = '';
+        // 새로운 상태 클래스 추가
+        predictionText.classList.add(prediction.class);
+        predictionText.textContent = prediction.text;
 
         // 확률 표시
-        const probability = result.probabilities[result.prediction];
-        predictionProb.textContent = `${(probability * 100).toFixed(1)}%`;
+        predictionProb.textContent = `${(result.probability * 100).toFixed(1)}%`;
+        
+        // 타임스탬프 업데이트
+        timestamp.textContent = new Date().toLocaleString();
 
         // 3D 모델 상태 업데이트
         if (window.millingMachineVisualization) {
@@ -222,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // 새로운 FormData 객체 생성
             const processedData = new FormData();
 
-            // 기본 필드 추가
+            // 기본 ���드 추가
             processedData.append('Air_Temperature', airTemp.toString());
             processedData.append('Process_Temperature', processTemp.toString());
             processedData.append('Rotational_Speed', rotSpeed.toString());
@@ -291,12 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
         tab.addEventListener('click', function () {
             typeTabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            if (typeInput) {
-                typeInput.value = this.dataset.value;
-                // 타입 변경 시 예측 업데이트
-                const formData = new FormData(parameterForm);
-                requestPrediction(formData);
-            }
+            typeInput.value = this.dataset.value;
         });
     });
 

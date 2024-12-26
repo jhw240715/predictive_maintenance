@@ -350,29 +350,22 @@ body {
     opacity: 0;
     animation: fadeIn 0.5s ease-out forwards;
     animation-delay: 0.5s;
+    padding-left: 0;
 }
 
 .content-section ul {
-    list-style: none;
-    padding-left: 0;
+    list-style: disc;
+    padding-left: 1.2rem;
     margin: 1rem 0;
+    color: #374151;
 }
 
 .content-section ul li {
     position: relative;
     padding: 0.5rem 0;
-    padding-left: 1.5rem;
     color: #374151;
     line-height: 1.5;
     margin-bottom: 0.5rem;
-}
-
-.content-section ul li:before {
-    content: "•";
-    color: #3b82f6;
-    font-weight: bold;
-    position: absolute;
-    left: 0;
 }
 
 .content-section ul li small {
@@ -391,12 +384,10 @@ body {
     margin-bottom: 2rem;
 }
 
-.feature-list:first-of-type {
-    margin-top: 1rem;
-}
-
-.feature-list:last-of-type {
-    margin-bottom: 0;
+.feature-list ul {
+    list-style: disc;
+    padding-left: 1.2rem;
+    color: #374151;
 }
 
 .feature-list h3 {
@@ -407,22 +398,7 @@ body {
 
 .feature-list p {
     margin: 0.5rem 0;
-    padding-left: 1.5rem;
     position: relative;
-}
-
-.feature-list p:before {
-    content: "•";
-    color: #3b82f6;
-    font-weight: bold;
-    position: absolute;
-    left: 0;
-}
-
-.content-section h3 {
-    color: #1e3a8a;
-    margin: 1.5rem 0 1rem 0;
-    font-size: 1.2rem;
 }
 
 /* 머신러닝 모델 성능 지표 스타일 */
@@ -431,6 +407,9 @@ body {
     border-radius: 8px;
     padding: 1.2rem;
     margin: 1rem 0;
+    list-style: disc;
+    padding-left: 1.2rem;
+    color: #374151;
 }
 
 .ml-metrics li {
@@ -451,6 +430,9 @@ body {
     border-radius: 8px;
     padding: 1.2rem;
     margin: 1rem 0;
+    list-style: disc;
+    padding-left: 1.2rem;
+    color: #374151;
 }
 
 .simulation-params li {
