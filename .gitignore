@@ -8,6 +8,10 @@ db.sqlite3
 db.sqlite3-journal
 media
 
+# Static files
+staticfiles/
+static_root/
+
 # Python
 *.py[cod]
 *$py.class
@@ -84,3 +88,11 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+
+# Python init files
+*/__init__.py
+*/*/__init__.py
+*/*/*/__init__.py
+
+# Django migrations
+*/migrations/*
