@@ -5,69 +5,62 @@
 ## 설치 방법
 
 1. 프로젝트 클론
-```bash
-git clone [repository URL]
+\`\`\`bash
+git clone https://github.com/jhw240715/predictive_maintenance.git
 cd predictive_maintenance
-```
+\`\`\`
 
 2. 가상환경 생성 및 활성화
-```bash
-# 가상환경 생성
+\`\`\`bash
 python -m venv venv
-
-# 가상환경 활성화
-# Windows의 경우:
-venv\Scripts\activate
-# macOS/Linux의 경우:
-source venv/bin/activate
-```
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+\`\`\`
 
 3. 필요한 패키지 설치
-```bash
+\`\`\`bash
 pip install -r requirements.txt
-```
+\`\`\`
 
-4. 환경 변수 설정
-- 프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 다음 내용을 추가:
-```
-DEBUG=True
-SECRET_KEY=your-secret-key
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
-5. 데이터베이스 마이그레이션
-```bash
+4. 데이터베이스 마이그레이션
+\`\`\`bash
+python manage.py makemigrations
 python manage.py migrate
-```
+\`\`\`
 
-6. 개발 서버 실행
-```bash
+5. 정적 파일 수집
+\`\`\`bash
+python manage.py collectstatic
+\`\`\`
+
+## 실행 방법
+
+1. 개발 서버 실행
+\`\`\`bash
 python manage.py runserver
-```
+\`\`\`
+
+2. 웹 브라우저에서 접속
+- http://127.0.0.1:8000 으로 접속
 
 ## 주요 기능
-
-- 머신러닝 모델 성능 비교 분석
+- 밀링 머신 예측 유지보수
+- 다양한 머신러닝 모델 성능 비교 (로지스틱 회귀, KNN, SVM, 의사결정트리, 랜덤포레스트, XGBoost)
 - 실시간 고장 예측 시뮬레이터
-- 3D 밀링 머신 시각화
-- ROC 커브 및 혼동 행렬 분석
+- 3D 밀링머신 시각화
 
 ## 기술 스택
-
-- Backend: Django 4.2.7
-- Frontend: HTML, CSS, JavaScript
-- Data Processing: NumPy, Pandas
-- Machine Learning: Scikit-learn
-- Visualization: Plotly, Three.js
+- Django 4.2.7
+- Python 3.9+
+- JavaScript
+- Three.js
+- HTML/CSS
+- Bootstrap 5.3.2
 
 ## 프로젝트 구조
-```
-predictive_maintenance/
-├── maintenance/         # 메인 앱 디렉토리
-├── static/             # 정적 파일 (CSS, JS, 이미지)
-├── templates/          # HTML 템플릿
-├── manage.py           # Django 관리 스크립트
-├── requirements.txt    # 프로젝트 의존성
-└── .env               # 환경 변수 (생성 필요)
-```
+- config/: Django 프로젝트 설정
+- maintenance/: 메인 애플리케이션
+- static/: 정적 파일 (CSS, JS, 이미지)
+- templates/: HTML 템플릿
+- requirements.txt: 프로젝트 의존성" > README.md
 
