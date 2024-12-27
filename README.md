@@ -5,40 +5,40 @@
 ## 설치 방법
 
 1. 프로젝트 클론
-\`\`\`bash
+```bash
 git clone https://github.com/jhw240715/predictive_maintenance.git
 cd predictive_maintenance
-\`\`\`
+```
 
 2. 가상환경 생성 및 활성화
-\`\`\`bash
+```bash
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
-\`\`\`
+```
 
 3. 필요한 패키지 설치
-\`\`\`bash
+```bash
 pip install -r requirements.txt
-\`\`\`
+```
 
 4. 데이터베이스 마이그레이션
-\`\`\`bash
+```bash
 python manage.py makemigrations
 python manage.py migrate
-\`\`\`
+```
 
 5. 정적 파일 수집
-\`\`\`bash
+```bash
 python manage.py collectstatic
-\`\`\`
+```
 
 ## 실행 방법
 
 1. 개발 서버 실행
-\`\`\`bash
+```bash
 python manage.py runserver
-\`\`\`
+```
 
 2. 웹 브라우저에서 접속
 - http://127.0.0.1:8000 으로 접속
@@ -62,5 +62,4 @@ python manage.py runserver
 - maintenance/: 메인 애플리케이션
 - static/: 정적 파일 (CSS, JS, 이미지)
 - templates/: HTML 템플릿
-- requirements.txt: 프로젝트 의존성" > README.md
-
+- requirements.txt: 프로젝트 의존성
