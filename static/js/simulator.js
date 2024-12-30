@@ -73,21 +73,39 @@ document.addEventListener('DOMContentLoaded', function () {
         const typeEncoded = { 'L': 0, 'M': 1, 'H': 2 }[values.type] ?? 0;
 
         // 새로운 FormData 객체 생성
-        const enrichedFormData = new FormData();
+        const processedData = new FormData();
 
-        // 원본 데이터 복사
-        for (const [key, value] of formData.entries()) {
-            enrichedFormData.append(key, value);
-        }
+        // 서버가 기대하는 형식으로 데이터 추가
+        processedData.append('Air_Temperature', values.Air_Temperature.toString());
+        processedData.append('Process_Temperature', values.Process_Temperature.toString());
+        processedData.append('Rotational_Speed', values.Rotational_Speed.toString());
+        processedData.append('Torque', values.Torque.toString());
+        processedData.append('Tool_Wear', values.Tool_Wear.toString());
+        processedData.append('Type_encoded', typeEncoded.toString());
+        processedData.append('Temperature_difference', tempDiff.toString());
+        processedData.append('Power', power.toString());
+        processedData.append('Wear_degree', wearDegree.toString());
 
-        // 계산된 특성 추가
-        enrichedFormData.append('Temperature_difference', tempDiff.toString());
-        enrichedFormData.append('Power', power.toString());
-        enrichedFormData.append('Wear_degree', wearDegree.toString());
-        enrichedFormData.append('Type_encoded', typeEncoded.toString());
-
-        return enrichedFormData;
+        return processedData;
     }
+
+    // 디바운스 함수
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // 디바운스된 예측 요청 함수
+    const debouncedRequestPrediction = debounce((formData) => {
+        requestPrediction(formData);
+    }, 500); // 500ms 딜레이
 
     // 슬라이더 상태 업데이트 함수
     function updateSliderStatus(slider, value) {
@@ -114,10 +132,10 @@ document.addEventListener('DOMContentLoaded', function () {
             slider.title = description;
             track.title = description;
 
-            // 실시간 예측 업데이트
+            // 실시간 예측 업데이트 (디바운스 적용)
             if (parameterForm) {
                 const formData = new FormData(parameterForm);
-                requestPrediction(formData);
+                debouncedRequestPrediction(formData);
             }
         }
     }
@@ -138,45 +156,59 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 예측 결과 표시 함수
-    function updatePredictionDisplay(result) {
-        const predictionResult = document.getElementById('prediction-result');
-        const predictionText = document.getElementById('prediction-text');
-        const predictionProb = document.getElementById('prediction-probability');
-        const timestamp = document.getElementById('prediction-timestamp');
-
-        if (!predictionResult || !predictionText || !predictionProb || !timestamp) {
+    function updatePredictionDisplay(prediction) {
+        const displayElement = document.getElementById('prediction-display');
+        if (!displayElement) {
             console.error('예측 결과 표시 요소를 찾을 수 없습니다.');
             return;
         }
-
-        predictionResult.classList.remove('hidden');
-
-        // 예측 결과 매핑
-        const predictionMap = {
-            0: { text: '정상 (Normal)', class: 'status-normal' },
-            1: { text: '공구 마모 실패 (Tool Wear Failure)', class: 'status-twf' },
-            2: { text: '열 발산 실패 (Heat Dissipation Failure)', class: 'status-hdf' },
-            3: { text: '전력 고장 (Power Failure)', class: 'status-pwf' },
-            4: { text: '제품 과변형 (Overstrain Failure)', class: 'status-osf' }
-        };
-
-        const prediction = predictionMap[result.prediction];
         
-        // 이전 상태 클래스 제거
-        predictionText.className = '';
-        // 새로운 상태 클래스 추가
-        predictionText.classList.add(prediction.class);
-        predictionText.textContent = prediction.text;
-
-        // 확률 표시
-        predictionProb.textContent = `${(result.probability * 100).toFixed(1)}%`;
+        // 기존 클래스 제거
+        displayElement.classList.remove('normal', 'tool-wear', 'heat-failure', 'power-failure', 'overstrain');
         
-        // 타임스탬프 업데이트
-        timestamp.textContent = new Date().toLocaleString();
+        // prediction이 undefined이거나 class 속성이 없는 경우 처리
+        if (!prediction || typeof prediction.class === 'undefined') {
+            displayElement.textContent = '예측 결과를 받아올 수 없습니다.';
+            displayElement.className = 'error';
+            return;
+        }
+
+        // 예측 결과에 따라 클래스 추가
+        let resultClass = '';
+        let resultText = '';
+        
+        switch(prediction.class) {
+            case 0:
+                resultClass = 'normal';
+                resultText = '정상';
+                break;
+            case 1:
+                resultClass = 'tool-wear';
+                resultText = '공구 마모 실패';
+                break;
+            case 2:
+                resultClass = 'heat-failure';
+                resultText = '열 발산 실패';
+                break;
+            case 3:
+                resultClass = 'power-failure';
+                resultText = '전력 고장';
+                break;
+            case 4:
+                resultClass = 'overstrain';
+                resultText = '제품 과변형';
+                break;
+            default:
+                resultClass = 'error';
+                resultText = '알 수 없는 예측 결과';
+        }
+        
+        displayElement.classList.add(resultClass);
+        displayElement.textContent = resultText;
 
         // 3D 모델 상태 업데이트
         if (window.millingMachineVisualization) {
-            window.millingMachineVisualization.updateMachineState(result.prediction);
+            window.millingMachineVisualization.updateMachineState(prediction.class);
         }
     }
 
@@ -192,78 +224,18 @@ document.addEventListener('DOMContentLoaded', function () {
         return classMap[prediction] || 'status-normal';
     }
 
-    // simulator.js의 requestPrediction 함수 수정
-
+    // 예측 요청 함수
     async function requestPrediction(formData) {
         try {
-            // 전송할 데이터 로깅
-            console.log('전송할 원본 데이터:', {
-                Air_Temperature: formData.get('Air_Temperature'),
-                Process_Temperature: formData.get('Process_Temperature'),
-                Rotational_Speed: formData.get('Rotational_Speed'),
-                Torque: formData.get('Torque'),
-                Tool_Wear: formData.get('Tool_Wear'),
-                type: formData.get('type')
-            });
-
-            // 데이터 검증
-            const numericFields = {
-                'Air_Temperature': formData.get('Air_Temperature'),
-                'Process_Temperature': formData.get('Process_Temperature'),
-                'Rotational_Speed': formData.get('Rotational_Speed'),
-                'Torque': formData.get('Torque'),
-                'Tool_Wear': formData.get('Tool_Wear')
-            };
-
-            // 누락된 필드 확인
-            for (const [field, value] of Object.entries(numericFields)) {
-                if (value === null || value === undefined || value === '') {
-                    throw new Error(`${field} 값이 누락되었습니다.`);
-                }
-                const numValue = parseFloat(value);
-                if (isNaN(numValue)) {
-                    throw new Error(`${field}의 값이 올바른 숫자 형식이 아닙니다.`);
-                }
-            }
-
-            // 파생 특성 계산
-            const airTemp = parseFloat(numericFields.Air_Temperature);
-            const processTemp = parseFloat(numericFields.Process_Temperature);
-            const rotSpeed = parseFloat(numericFields.Rotational_Speed);
-            const torque = parseFloat(numericFields.Torque);
-            const toolWear = parseFloat(numericFields.Tool_Wear);
-            const type = formData.get('type');
-
-            // 새로운 FormData 객체 생성
-            const processedData = new FormData();
-
-            // 기본 ���드 추가
-            processedData.append('Air_Temperature', airTemp.toString());
-            processedData.append('Process_Temperature', processTemp.toString());
-            processedData.append('Rotational_Speed', rotSpeed.toString());
-            processedData.append('Torque', torque.toString());
-            processedData.append('Tool_Wear', toolWear.toString());
-            processedData.append('type', type);
-
-            // 파생 특성 추가
-            const tempDiff = processTemp - airTemp;
-            const power = (2 * Math.PI * rotSpeed * torque) / 60;
-            const wearDegree = toolWear * torque;
-            const typeEncoded = { 'L': 0, 'M': 1, 'H': 2 }[type] ?? 0;
-
-            processedData.append('Temperature_difference', tempDiff.toString());
-            processedData.append('Power', power.toString());
-            processedData.append('Wear_degree', wearDegree.toString());
-            processedData.append('Type_encoded', typeEncoded.toString());
-
+            // 파생 특성이 포함된 FormData 생성
+            const processedData = calculateDerivedFeatures(formData);
+            
             // CSRF 토큰 추가
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             processedData.append('csrfmiddlewaretoken', csrfToken);
-
-            // 전송할 데이터 확인
-            console.log('전송할 가공된 데이터:', Object.fromEntries(processedData));
-
-            // 서버로 요청 전송
+            
+            console.log('전송할 데이터:', Object.fromEntries(processedData));
+            
             const response = await fetch('/simulator/predict/', {
                 method: 'POST',
                 body: processedData,
@@ -273,25 +245,79 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || '서버 응답 오류');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
-            updatePredictionDisplay(result);
+            console.log('서버 응답:', result);
+            
+            if (result.status === 'error') {
+                throw new Error(result.message);
+            }
+            
+            // 응답 형식 확인 및 변환
+            const prediction = {
+                class: result.prediction_class !== undefined ? parseInt(result.prediction_class) : 
+                       result.prediction !== undefined ? parseInt(result.prediction) : undefined,
+                probability: result.probability !== undefined ? parseFloat(result.probability) : 1.0
+            };
 
+            console.log('변환된 예측 결과:', prediction);
+            
+            // 예측 결과 표시 업데이트
+            const predictionResult = document.getElementById('prediction-result');
+            const predictionText = document.getElementById('prediction-text');
+            const predictionProb = document.getElementById('prediction-probability');
+            const predictionDisplay = document.getElementById('prediction-display');
+            
+            // prediction-result 업데이트
+            if (predictionResult && predictionText && predictionProb) {
+                predictionResult.classList.remove('hidden');
+                predictionText.textContent = getPredictionText(prediction.class);
+                predictionProb.textContent = `${(prediction.probability * 100).toFixed(1)}%`;
+            }
+
+            // prediction-display 업데이트
+            if (predictionDisplay) {
+                updatePredictionDisplay(prediction);
+            }
+            
+            // 3D 모델 상태 업데이트
+            if (window.millingMachineVisualization && prediction.class !== undefined) {
+                window.millingMachineVisualization.updateMachineState(prediction.class);
+            }
+            
         } catch (error) {
             console.error('예측 요청 오류:', error);
             const predictionResult = document.getElementById('prediction-result');
+            const predictionDisplay = document.getElementById('prediction-display');
+            
             if (predictionResult) {
-                predictionResult.innerHTML = `
-                <div class="error-message">
-                    예측 중 오류가 발생했습니다: ${error.message}
-                </div>
-            `;
                 predictionResult.classList.remove('hidden');
+                predictionResult.innerHTML = `
+                    <div class="error-message">
+                        예측 중 오류가 발생했습니다: ${error.message}
+                    </div>
+                `;
+            }
+
+            if (predictionDisplay) {
+                predictionDisplay.textContent = '예측 오류';
+                predictionDisplay.className = 'error';
             }
         }
+    }
+
+    // 예측 결과 텍스트 반환 함수
+    function getPredictionText(predictionClass) {
+        const predictionMap = {
+            0: '정상 (Normal)',
+            1: '공구 마모 실패 (Tool Wear Failure)',
+            2: '열 발산 실패 (Heat Dissipation Failure)',
+            3: '전력 고장 (Power Failure)',
+            4: '제품 과변형 (Overstrain Failure)'
+        };
+        return predictionMap[predictionClass] || '알 수 없는 예측 결과';
     }
 
     // 이벤트 리스너 설정
@@ -328,3 +354,62 @@ document.addEventListener('DOMContentLoaded', function () {
         updateSliderStatus(slider, slider.value);
     });
 });
+
+// 가이드 토글 함수
+function toggleGuide() {
+    const content = document.getElementById('guide-content');
+    const icon = document.querySelector('.toggle-icon');
+    content.classList.toggle('expanded');
+    icon.textContent = content.classList.contains('expanded') ? '▲' : '▼';
+}
+
+// WebGL 지원 확인
+function checkWebGL() {
+    try {
+        const canvas = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext && 
+            (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+    } catch(e) {
+        return false;
+    }
+}
+
+// 에러 메시지 표시
+function showErrorMessage(message) {
+    console.error('시뮬레이터 오류:', message);
+    const errorDiv = document.getElementById('webgl-error');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+    hideLoadingIndicator();
+}
+
+// 로딩 인디케이터 숨기기
+function hideLoadingIndicator() {
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+// 시뮬레이터 초기화
+async function initializeSimulator() {
+    try {
+        if (!checkWebGL()) {
+            throw new Error('WebGL이 지원되지 않습니다. 최신 브라우저를 사용하시거나 그래픽 드라이버를 업데이트해주세요.');
+        }
+
+        const { MillingMachineVisualization } = await import('/static/js/simulator3D.js');
+        window.millingMachineVisualization = new MillingMachineVisualization('machine-visualization');
+        hideLoadingIndicator();
+        console.log('시뮬레이터 초기화 완료');
+        
+    } catch (error) {
+        showErrorMessage(`시뮬레이터 초기화 실패: ${error.message}`);
+        console.error('초기화 상세 오류:', error);
+    }
+}
+
+// DOM 로드 시 초기화
+document.addEventListener('DOMContentLoaded', initializeSimulator);

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class FailurePredictor:
     def __init__(self):
         self.model_path = os.path.join(settings.BASE_DIR, 'maintenance', 'ml', 'models')  # 경로 수정
-        model_file = os.path.join(self.model_path, 'xgboost_model.pkl')
+        model_file = os.path.join(self.model_path, 'model_rfc_fix.pkl')
         
         logger.info(f"모델 파일 경로: {model_file}")
         logger.info(f"파일 존재 여부: {os.path.exists(model_file)}")
@@ -26,6 +26,12 @@ class FailurePredictor:
             logger.info("모델 정보:")
             logger.info(f"- 타입: {type(self.model)}")
             logger.info(f"- 특성 개수: {self.model.n_features_in_}")
+            
+            # 모델의 feature 이름 확인 및 로깅
+            if hasattr(self.model, 'feature_names_in_'):
+                logger.info("모델의 feature 이름:")
+                for name in self.model.feature_names_in_:
+                    logger.info(f"- {name}")
             
         except Exception as e:
             logger.error(f"모델 로드 중 오류 발생: {str(e)}")

@@ -254,11 +254,6 @@ export class MillingMachineVisualization {
             baseGroup.add(foot);
         });
 
-        // 제어 패널 추가
-        const panelGroup = this.createControlPanel();
-        panelGroup.position.set(-3.8, 1.5, 0);
-        baseGroup.add(panelGroup);
-
         return baseGroup;
     }
 
@@ -266,21 +261,54 @@ export class MillingMachineVisualization {
         const panelGroup = new THREE.Group();
 
         // 메인 패널 박스
-        const panelGeometry = new THREE.BoxGeometry(2, 2.5, 0.3);
+        const panelGeometry = new THREE.BoxGeometry(0.8, 2, 1.5);
         const panel = new THREE.Mesh(panelGeometry, this.materials.darkMetal);
-        panel.rotation.y = -Math.PI / 6;
+        panel.position.set(1.65, 7, 0);
         panelGroup.add(panel);
 
-        // 전원 패널 섹션 추가
-        const powerPanelGeometry = new THREE.BoxGeometry(1.5, 1, 0.1);
+        // 전원 패널 섹션
+        const powerPanelGeometry = new THREE.BoxGeometry(0.1, 1.5, 1);
         const powerPanel = new THREE.Mesh(powerPanelGeometry, new THREE.MeshPhysicalMaterial({
             color: 0x2c3e50,
             metalness: 0.7,
             roughness: 0.3
         }));
-        powerPanel.position.set(0, 0.5, 0.2);
+        powerPanel.position.set(1.75, 7, 0);
         powerPanel.name = 'power_part';
         panelGroup.add(powerPanel);
+
+        // 작동 버튼 (녹색)
+        const startButtonGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 32);
+        const startButton = new THREE.Mesh(startButtonGeometry, new THREE.MeshPhysicalMaterial({
+            color: 0x2ecc71,
+            metalness: 0.5,
+            roughness: 0.3
+        }));
+        startButton.rotation.x = Math.PI / 2;
+        startButton.position.set(1.81, 7.3, 0.2);
+        panelGroup.add(startButton);
+
+        // 정지 버튼 (빨간색)
+        const stopButtonGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 32);
+        const stopButton = new THREE.Mesh(stopButtonGeometry, new THREE.MeshPhysicalMaterial({
+            color: 0xe74c3c,
+            metalness: 0.5,
+            roughness: 0.3
+        }));
+        stopButton.rotation.x = Math.PI / 2;
+        stopButton.position.set(1.81, 7.3, -0.2);
+        panelGroup.add(stopButton);
+
+        // 비상 정지 버튼 (큰 빨간색 버튼)
+        const emergencyStopGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.15, 32);
+        const emergencyStop = new THREE.Mesh(emergencyStopGeometry, new THREE.MeshPhysicalMaterial({
+            color: 0xff0000,
+            metalness: 0.5,
+            roughness: 0.3
+        }));
+        emergencyStop.rotation.x = Math.PI / 2;
+        emergencyStop.position.set(1.81, 6.7, 0);
+        panelGroup.add(emergencyStop);
 
         // 전원 LED 표시등
         const ledGeometry = new THREE.CircleGeometry(0.1, 32);
@@ -289,29 +317,28 @@ export class MillingMachineVisualization {
             emissive: 0x2ecc71,
             emissiveIntensity: 0.5
         }));
-        ledLight.position.set(0.4, 0.7, 0.25);
+        ledLight.position.set(1.81, 7.5, 0);
+        ledLight.rotation.y = Math.PI / 2;
         panelGroup.add(ledLight);
 
-        // 전원 스위치
-        const switchGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.1);
-        const powerSwitch = new THREE.Mesh(switchGeometry, new THREE.MeshPhysicalMaterial({
-            color: 0xe74c3c,
-            metalness: 0.6,
-            roughness: 0.2
-        }));
-        powerSwitch.position.set(0, 0.7, 0.25);
-        panelGroup.add(powerSwitch);
+        // 버튼 라벨 추가 (작은 텍스트 표시)
+        const buttonLabels = [
+            { text: "START", position: [1.82, 7.3, 0.4], color: 0x2ecc71 },
+            { text: "STOP", position: [1.82, 7.3, -0.4], color: 0xe74c3c },
+            { text: "EMERGENCY", position: [1.82, 6.4, 0], color: 0xff0000 }
+        ];
 
-        // 전압 디스플레이 추가
-        const displayGeometry = new THREE.PlaneGeometry(0.8, 0.3);
-        const displayMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x34495e,
-            emissive: 0x34495e,
-            emissiveIntensity: 0.2
+        buttonLabels.forEach(label => {
+            const labelGeometry = new THREE.BoxGeometry(0.05, 0.2, 0.4);
+            const labelMaterial = new THREE.MeshPhysicalMaterial({
+                color: label.color,
+                metalness: 0.5,
+                roughness: 0.5
+            });
+            const labelMesh = new THREE.Mesh(labelGeometry, labelMaterial);
+            labelMesh.position.set(...label.position);
+            panelGroup.add(labelMesh);
         });
-        const display = new THREE.Mesh(displayGeometry, displayMaterial);
-        display.position.set(0, 0, 0.25);
-        panelGroup.add(display);
 
         return panelGroup;
     }
@@ -344,6 +371,88 @@ export class MillingMachineVisualization {
                 columnGroup.add(mount);
             }
         });
+
+        // 전원 패널 추가
+        const panelGeometry = new THREE.BoxGeometry(0.8, 2, 1.5);
+        const panel = new THREE.Mesh(panelGeometry, this.materials.darkMetal);
+        panel.position.set(-1.65, 7, 0);
+        columnGroup.add(panel);
+
+        // 전원 패널 섹션
+        const powerPanelGeometry = new THREE.BoxGeometry(0.1, 1.5, 1);
+        const powerPanel = new THREE.Mesh(powerPanelGeometry, new THREE.MeshPhysicalMaterial({
+            color: 0x2c3e50,
+            metalness: 0.7,
+            roughness: 0.3
+        }));
+        powerPanel.position.set(-1.75, 7, 0);
+        powerPanel.name = 'power_part';
+        columnGroup.add(powerPanel);
+
+        // 작동 버튼 (녹색)
+        const startButtonGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 32);
+        const startButton = new THREE.Mesh(startButtonGeometry, new THREE.MeshPhysicalMaterial({
+            color: 0x2ecc71,
+            metalness: 0.5,
+            roughness: 0.3
+        }));
+        startButton.rotation.x = Math.PI / 2;
+        startButton.position.set(-1.81, 7.3, 0.8);
+        columnGroup.add(startButton);
+
+        // 정지 버튼 (빨간색)
+        const stopButtonGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 32);
+        const stopButton = new THREE.Mesh(stopButtonGeometry, new THREE.MeshPhysicalMaterial({
+            color: 0xe74c3c,
+            metalness: 0.5,
+            roughness: 0.3
+        }));
+        stopButton.rotation.x = Math.PI / 2;
+        stopButton.position.set(-1.81, 7.3, 0.6);
+        columnGroup.add(stopButton);
+
+        // 비상 정지 버튼 (큰 빨간색 버튼)
+        const emergencyStopGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.15, 32);
+        const emergencyStop = new THREE.Mesh(emergencyStopGeometry, new THREE.MeshPhysicalMaterial({
+            color: 0xff0000,
+            metalness: 0.5,
+            roughness: 0.3
+        }));
+        emergencyStop.rotation.x = Math.PI / 2;
+        emergencyStop.position.set(-1.81, 6.7, 0.8);
+        columnGroup.add(emergencyStop);
+
+        // 전원선 추가
+        const powerCable = new THREE.Group();
+        const cableSegments = 6;
+        const cableRadius = 0.05;
+        const cableLength = 5;
+
+        // 수직 전원선
+        const verticalCable = new THREE.Mesh(
+            new THREE.CylinderGeometry(cableRadius, cableRadius, cableLength),
+            new THREE.MeshPhysicalMaterial({ color: 0x000000, roughness: 0.7 })
+        );
+        verticalCable.position.set(-1.65, 4.5, 0);
+        powerCable.add(verticalCable);
+
+        // 바닥으로 향하는 곡선 전원선
+        for (let i = 0; i < cableSegments; i++) {
+            const segment = new THREE.Mesh(
+                new THREE.CylinderGeometry(cableRadius, cableRadius, 0.8),
+                new THREE.MeshPhysicalMaterial({ color: 0x000000, roughness: 0.7 })
+            );
+            
+            const angle = (i / cableSegments) * Math.PI * 0.3;
+            const x = -1.65 - Math.sin(angle) * 0.3;
+            const y = 4.5 - Math.cos(angle) * 0.3;
+            
+            segment.position.set(x, y, 0);
+            segment.rotation.z = -angle;
+            powerCable.add(segment);
+        }
+
+        columnGroup.add(powerCable);
 
         return columnGroup;
     }
@@ -405,7 +514,7 @@ export class MillingMachineVisualization {
         const tableMesh = new THREE.Mesh(tableGeometry, this.materials.mainBody);
         tableMesh.castShadow = true;
         tableMesh.receiveShadow = true;
-        tableMesh.name = 'strain_part'; // 과변형 부위
+        tableMesh.name = 'strain_part';
         tableGroup.add(tableMesh);
 
         // T-슬롯 추가
@@ -430,57 +539,111 @@ export class MillingMachineVisualization {
             tableGroup.add(bottomSlot);
         }
 
+        // 테이블 핸들 휠 추가
+        const handleRadius = 1.2;
+        [-6.2, 6.2].forEach(x => {
+            // 핸들 휠
+            const wheelGeometry = new THREE.TorusGeometry(handleRadius, 0.1, 16, 32);
+            const wheel = new THREE.Mesh(wheelGeometry, this.materials.darkMetal);
+            wheel.rotation.y = Math.PI / 2;
+            wheel.position.set(x, 0, 0);
+            tableGroup.add(wheel);
+
+            // 휠 스포크
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const spokeGeometry = new THREE.CylinderGeometry(0.04, 0.04, handleRadius * 0.9, 8);
+                const spoke = new THREE.Mesh(spokeGeometry, this.materials.darkMetal);
+                spoke.position.set(x, handleRadius * Math.sin(angle), 0 + handleRadius * Math.cos(angle));
+                spoke.rotation.x = angle;
+                tableGroup.add(spoke);
+            }
+
+            // 핸들 축
+            const axisGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.5, 16);
+            const axis = new THREE.Mesh(axisGeometry, this.materials.lightMetal);
+            axis.rotation.z = Math.PI / 2;
+            axis.position.set(x, 0, 0);
+            tableGroup.add(axis);
+        });
+
         return tableGroup;
     }
 
     // 고장 상태 업데이트 메서드
     updateFailureState(failureType) {
         // 이전 상태 초기화
-        this.currentFailurePart = null;
-        Object.entries(this.failureParts).forEach(([key, mesh]) => {
-            if (mesh && this.defaultMaterials[key]) {
-                mesh.material = this.defaultMaterials[key].clone();
-            }
+        this.resetAllParts();
+        
+        // 깜빡임 효과를 위한 재질
+        const failureMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xff0000,
+            emissive: 0xff0000,
+            emissiveIntensity: 0.8,
+            transparent: true,
+            opacity: 0.9
         });
 
-        // 새로운 고장 상태 적용
         switch (failureType) {
             case 1: // 공구 마모 실패
-                if (this.failureParts.toolWear) {
-                    this.failureParts.toolWear.material = this.failureBlinkMaterial;
-                    this.currentFailurePart = this.failureParts.toolWear;
-                    this.focusOnPart(this.failureParts.toolWear);
+                if (this.toolHolder) {
+                    this.toolHolder.material = failureMaterial;
+                    this.focusOnPart(this.toolHolder);
                 }
                 break;
             case 2: // 열 발산 실패
-                if (this.failureParts.heatDissipation) {
-                    this.failureParts.heatDissipation.material = this.failureBlinkMaterial;
-                    this.currentFailurePart = this.failureParts.heatDissipation;
-                    this.focusOnPart(this.failureParts.heatDissipation);
+                const heatPart = this.scene.getObjectByName('heat_part');
+                if (heatPart) {
+                    heatPart.material = failureMaterial;
+                    this.focusOnPart(heatPart);
                 }
                 break;
             case 3: // 전력 고장
-                if (this.failureParts.powerFailure) {
-                    this.failureParts.powerFailure.material = this.failureBlinkMaterial;
-                    this.currentFailurePart = this.failureParts.powerFailure;
-                    this.focusOnPart(this.failureParts.powerFailure);
+                const powerPart = this.scene.getObjectByName('power_part');
+                if (powerPart) {
+                    powerPart.material = failureMaterial;
+                    this.focusOnPart(powerPart);
                 }
                 break;
-            case 4: // 제품 과변형
-                if (this.failureParts.overstrain) {
-                    this.failureParts.overstrain.material = this.failureBlinkMaterial;
-                    this.currentFailurePart = this.failureParts.overstrain;
-                    this.focusOnPart(this.failureParts.overstrain);
+            case 4: // 과부하
+                const strainPart = this.scene.getObjectByName('strain_part');
+                if (strainPart) {
+                    strainPart.material = failureMaterial;
+                    this.focusOnPart(strainPart);
                 }
                 break;
-            case 0: // 정상
             default:
-                // 모든 부품을 기본 상태로 복구
                 this.resetCamera();
                 break;
         }
 
-        this.state.currentFailureType = failureType;
+        // 깜빡임 애니메이션 효과 추가
+        if (failureType !== 0) {
+            this.startBlinkingEffect();
+        }
+    }
+
+    // 깜빡임 효과 추가
+    startBlinkingEffect() {
+        const blinkInterval = setInterval(() => {
+            if (this.currentFailurePart) {
+                this.currentFailurePart.material.opacity = 
+                    this.currentFailurePart.material.opacity === 0.9 ? 0.5 : 0.9;
+            } else {
+                clearInterval(blinkInterval);
+            }
+        }, 500);
+    }
+
+    // 모든 부품 초기화
+    resetAllParts() {
+        const parts = ['tool_part', 'heat_part', 'power_part', 'strain_part'];
+        parts.forEach(partName => {
+            const part = this.scene.getObjectByName(partName);
+            if (part && this.defaultMaterials[partName]) {
+                part.material = this.defaultMaterials[partName].clone();
+            }
+        });
     }
 
     // 카메라 포커스 메서드
@@ -529,26 +692,40 @@ export class MillingMachineVisualization {
         animate();
     }
 
-    updateMachineState(data) {
-        if (!data || typeof data !== 'object') {
+    // 기계 상태 업데이트 함수
+    updateMachineState(predictionClass) {
+        // 유효성 검사
+        if (predictionClass === undefined || predictionClass === null) {
             console.warn('유효하지 않은 데이터 형식');
             return;
         }
 
-        try {
-            // 회전 속도 상태 업데이트
-            if (data.rotational_speed !== undefined) {
-                const rpm = parseFloat(data.rotational_speed);
-                this.state.rotationSpeed = rpm;
-                this.state.isOperating = rpm > 0;
-            }
+        const stateClass = parseInt(predictionClass);
+        if (isNaN(stateClass) || stateClass < 0 || stateClass > 4) {
+            console.warn('유효하지 않은 예측 클래스:', stateClass);
+            return;
+        }
 
-            // 공구 마모 상태 업데이트
-            if (data.tool_wear !== undefined) {
-                this.state.toolWear = parseFloat(data.tool_wear);
-            }
-        } catch (error) {
-            console.error('상태 업데이트 오류:', error);
+        // 상태에 따른 부품 하이라이트
+        switch (stateClass) {
+            case 0: // 정상
+                this.resetAllParts();
+                break;
+            case 1: // 공구 마모 실패
+                this.highlightPart('tool', 0xff0000);
+                break;
+            case 2: // 열 발산 실패
+                this.highlightPart('heatsink', 0xff0000);
+                break;
+            case 3: // 전력 고장
+                this.highlightPart('power', 0xff0000);
+                break;
+            case 4: // 제품 과변형
+                this.highlightPart('workpiece', 0xff0000);
+                break;
+            default:
+                console.warn('알 수 없는 상태:', stateClass);
+                this.resetAllParts();
         }
     }
 

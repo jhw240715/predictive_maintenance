@@ -9,6 +9,14 @@
 <div class="container">
     <!-- 왼쪽 사이드바 -->
     <div class="sidebar">
+        <!-- 시뮬레이터 버튼 -->
+        <div class="simulator-btn">
+            <a href="{% url 'maintenance:simulator' %}" class="model-item">
+                <span class="menu-icon">📚</span>
+                <span>밀링 머신 고장 예방 시뮬레이터</span>
+            </a>
+        </div>
+
         <!-- 머신러닝 모델 섹션 -->
         <div class="sidebar-item">
             <!-- 토글 버튼 -->
@@ -47,14 +55,6 @@
                 </a>
             </div>
         </div>
-
-        <!-- 시뮬레이터 버튼 -->
-        <div class="simulator-btn">
-            <a href="{% url 'maintenance:simulator' %}" class="model-item">
-                <span class="menu-icon">📚</span>
-                <span>밀링 머신 고장 예방 시뮬레이터</span>
-            </a>
-        </div>
     </div>
 
     <!-- 메인 컨텐츠 영역 -->
@@ -87,40 +87,34 @@
                         <div class="card-title">밀링 머신 고장 예방 교육</div>
                     </div>
                 </button>
+                <button class="tab-card" data-content="mlmodel">
+                    <div class="card-content">
+                        <div class="card-icon">🤖</div>
+                        <div class="card-title">머신러닝 모델 설명</div>
+                    </div>
+                </button>
             </div>
         </div>
 
         <!-- 컨텐츠 섹션들 -->
         <div class="content-section active" id="webpage">
             <h2>웹페이지에 대한 설명</h2>
-            <p>본 웹페이지는 실제 밀링 머신에서 수집된 데이터셋을 활용한 예측 유지보수 시스템입니다. 10,000개 이상의 실제 센서 데이터를 기반으로 <br> 6가지 머신러닝 모델을 비교 분석했으며, 그 중 가장 높은 성능을 보인 랜덤포레스트 모델을 시뮬레이터에 적용하여 실시간 고장을 예측합니다.</p>
+            <p>본 웹페이지는 실제 밀링 머신에서 수집된 데이터셋을 활용한 예측 유지보수 시스템입니다. 10,000개의 실제 센서 데이터를 기반으로 6가지 머신러닝 모델을 비교 분석했으며, 그 중 가장 높은 성능을 보인 랜덤포레스트 모델을 시뮬레이터에 적용하여 실시간 고장을 예측합니다.</p>
+            
             <div class="feature-list">
-                <h3>주요 기능</h3>
-                <p>- 6가지 머신러닝 모델 성능 분석</p>
+                <h3>각 섹션 설명</h3>
                 <ul style="list-style-type: circle; margin-left: 20px;">
-                    <li><small>정확도(Accuracy): 전체 예측 중 올바르게 예측한 비율
-                        <br>→ 예: 100건의 예측 중 98건을 올바르게 예측하면 98% 정확도</small></li>
-                    <li><small>정밀도(Precision): 고장이라고 예측한 것 중 실제 고장인 비율
-                        <br>→ 예: 고장이라고 예측한 10건 중 9건이 실제 고장이면 90% 정밀도</small></li>
-                    <li><small>재현율(Recall): 실제 고장 중 고장이라고 예측한 비율
-                        <br>→ 예: 실제 고장 20건 중 18건을 고장이라고 예측하면 90% 재현율</small></li>
-                    <li><small>F1-Score: 정밀도와 재현율의 조화평균
-                        <br>→ 정밀도와 재현율을 함께 고려한 종합 점수</small></li>
-                    <li><small>ROC 곡선: 모델의 성능을 시각화한 그래프
-                        <br>→ 곡선이 왼쪽 위 모서리에 가까울수록 좋은 성능</small></li>
-                    <li><small>혼동 행렬: 예측과 실제 결과를 비교한 표
-                        <br>→ 정상/고장 예측이 얼마나 정확했는지 한눈에 파악</small></li>
+                    <li><small>밀링머신 설명: 여러분들께 이해하기 쉽도록 간략하게 밀링 머신에 대해서 설명 해드립니다.</small></li>
+                    <li><small>밀링 머신 고장 유형 및 분석: 밀링 머신을 작동시킬때 발생할수 있는 고장의 유형에 대해서 알려드리고 고장이 어떤 고장이 어떤 환경에서 자주 발생할 수 있는지에 대해서 설명해드립니다.</small></li>
+                    <li><small>밀링 머신 고장 예방 교육: 밀링 머신을 사용하기 전에 시뮬레이터를 통해 고장을 예방할 수 있도록 교육에 대해서 설명해드립니다.</small></li>
+                    <li><small>머신러닝 모델 설명: 시뮬레이터에 쓰인 모델이 어떤 머신러닝이 쓰였는지와 그에 대한 이유에 대해서 설명해드립니다.</small></li>
                 </ul>
-                <p>- 사용자 입력 기반 시뮬레이션</p>
+                
+                <h3>사이드바 메뉴</h3>
                 <ul style="list-style-type: circle; margin-left: 20px;">
-                    <li><small>공기 온도 (21.6°C ~ 26.2°C)</small></li>
-                    <li><small>공정 온도 (35.2°C ~ 43.8°C)</small></li>
-                    <li><small>회전 속도 (1168 ~ 2886 RPM)</small></li>
-                    <li><small>토크 (3.8 ~ 76.6 Nm)</small></li>
-                    <li><small>공구 마모 (0 ~ 253분)</small></li>
+                    <li><small>밀링 머신 고장 예방 시뮬레이터: 밀링 머신 고장 예방에 대해서 학습하실 수 있습니다.</small></li>
+                    <li><small>머신러닝 모델: 머신러닝 모델 학습 후보들에 대한 성능 지표를 확인하실 수 있습니다.</small></li>
                 </ul>
-                <p>- 밀링 머신 상태 시각화 (정상: 초록색 / 고장: 빨간색)</p>
-                <p>- 예측 결과 기반 유지보수 일정 최적화</p>
             </div>
         </div>
 
@@ -246,6 +240,56 @@
                     </li>
                 </ul>
                 <p>시뮬레이터를 통해 고장 예측을 실습해볼 수 있습니다.</p>
+            </div>
+        </div>
+
+        <div class="content-section" id="mlmodel">
+            <h2>머신러닝 모델 설명</h2>
+            <p>본 웹페이지에서 사용된 머신러닝 모델들에 대한 상세 설명입니다:</p>
+            <div class="feature-list">
+                <h3>사용된 모델 종류</h3>
+                <ul>
+                    <li>로지스틱 회귀 (Logistic Regression)
+                        <br><small>- 간단하면서도 효과적인 이진 분류 모델</small>
+                        <br><small>- 데이터의 선형적 관계를 잘 포착</small>
+                    </li>
+                    <li>K-최근접 이웃 (KNN)
+                        <br><small>- 데이터 포인트 간의 거리를 기반으로 분류</small>
+                        <br><small>- 비선형적 패턴도 잘 학습</small>
+                    </li>
+                    <li>서포트 벡터 머신 (SVM)
+                        <br><small>- 데이터를 고차원 공간에서 분리</small>
+                        <br><small>- 복잡한 결정 경계를 효과적으로 학습</small>
+                    </li>
+                    <li>의사결정트리 (Decision Tree)
+                        <br><small>- 직관적이고 해석하기 쉬운 모델</small>
+                        <br><small>- 특성 중요도 파악이 용이</small>
+                    </li>
+                    <li>랜덤 포레스트 (Random Forest)
+                        <br><small>- 여러 의사결정트리의 앙상블 모델</small>
+                        <br><small>- 과적합 위험이 적고 안정적인 성능</small>
+                    </li>
+                    <li>XGBoost
+                        <br><small>- 그래디언트 부스팅 기반의 고성능 모델</small>
+                        <br><small>- 높은 예측 정확도와 빠른 학습 속도</small>
+                    </li>
+                </ul>
+
+                <h3>성능 지표</h3>
+                <ul style="list-style-type: circle; margin-left: 20px;">
+                    <li><small>정확도(Accuracy): 전체 예측 중 올바르게 예측한 비율
+                        <br>→ 예: 100건의 예측 중 98건을 올바르게 예측하면 98% 정확도</small></li>
+                    <li><small>정밀도(Precision): 고장이라고 예측한 것 중 실제 고장인 비율
+                        <br>→ 예: 고장이라고 예측한 10건 중 9건이 실제 고장이면 90% 정밀도</small></li>
+                    <li><small>재현율(Recall): 실제 고장 중 고장이라고 예측한 비율
+                        <br>→ 예: 실제 고장 20건 중 18건을 고장이라고 예측하면 90% 재현율</small></li>
+                    <li><small>F1-Score: 정밀도와 재현율의 조화평균
+                        <br>→ 정밀도와 재현율을 함께 고려한 종합 점수</small></li>
+                    <li><small>ROC 곡선: 모델의 성능을 시각화한 그래프
+                        <br>→ 곡선이 왼쪽 위 모서리에 가까울수록 좋은 성능</small></li>
+                    <li><small>혼동 행렬: 예측과 실제 결과를 비교한 표
+                        <br>→ 정상/고장 예측이 얼마나 정확했는지 한눈에 파악</small></li>
+                </ul>
             </div>
         </div>
     </div>

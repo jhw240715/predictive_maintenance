@@ -23,9 +23,9 @@ def handle_error(error, error_type="일반 오류"):
 # 모델 인스턴스 생성
 try:
     predictor = FailurePredictor()
-    logger.info("XGBoost 모델 로드 성공!")
+    logger.info("RandomForest 모델 로드 성공!")
 except Exception as e:
-    logger.error(f"XGBoost 모델 로드 실패: {str(e)}")
+    logger.error(f"RandomForest 모델 로드 실패: {str(e)}")
     predictor = None
 
 def index(request):
@@ -255,23 +255,31 @@ def predict_failure(request):
         
         # 입력 데이터 준비
         try:
+            # 모델이 학습할 때 사용한 정확한 feature 이름으로 매핑
             input_data = {
-                'Rotational_speed': float(request.POST.get('Rotational_Speed')),
-                'Torque': float(request.POST.get('Torque')),
-                'Tool_wear': float(request.POST.get('Tool_Wear')),
+                'Rotational speed [rpm]': float(request.POST.get('Rotational_Speed')),
+                'Torque [Nm]': float(request.POST.get('Torque')),
+                'Tool wear [min]': float(request.POST.get('Tool_Wear')),
                 'Type_encoded': int(request.POST.get('Type_encoded')),
-                'Temperature_difference': float(request.POST.get('Temperature_difference')),
-                'Power': float(request.POST.get('Power')),
-                'Wear_degree': float(request.POST.get('Wear_degree'))
+                'Temperature difference [K]': float(request.POST.get('Temperature_difference')),
+                'Power [W]': float(request.POST.get('Power')),
+                'Wear degree [min*Nm]': float(request.POST.get('Wear_degree'))
             }
+            
+            logger.info("변환된 입력 데이터: %s", input_data)
+            
+            # 모델의 feature 이름 확인 및 로깅
+            if hasattr(predictor.model, 'feature_names_in_'):
+                logger.info("모델의 feature 이름:")
+                for name in predictor.model.feature_names_in_:
+                    logger.info(f"- {name}")
+            
+            # 예측 수행
+            result = predictor.predict(input_data)
+            return JsonResponse(result)
+            
         except (ValueError, TypeError) as e:
             return handle_error(str(e), "데이터 형식 오류")
         
-        logger.info("변환된 입력 데이터: %s", input_data)
-        
-        # 예측 수행
-        result = predictor.predict(input_data)
-        return JsonResponse(result)
-
     except Exception as e:
         return handle_error(str(e), "예측 오류")

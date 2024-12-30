@@ -36,9 +36,39 @@ body {
     flex-direction: column;
 }
 
-/* 토글 버튼 스타일링 */
-.sidebar-item {
+/* 시뮬레이터 버튼 스타일링 - 상단으로 이동 */
+.simulator-btn {
     margin-top: -55px;
+    margin-bottom: 40px;
+    width: 180px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+.simulator-btn .model-item {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    width: 180px;
+    height: 60px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 20px 8px 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'Noto Sans KR', sans-serif;
+    white-space: pre-line;
+    text-align: left;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+/* 토글 버튼 스타일링 - 시뮬레이터 버튼 아래로 이동 */
+.sidebar-item {
+    margin-top: -20px;
     margin-bottom: 40px;
 }
 
@@ -112,52 +142,13 @@ body {
 }
 
 .model-item:hover {
-    background-color: #f8f9fa;
+    background-color: inherit;
     transform: translateX(4px);
 }
 
-/* 시뮬레이터 버튼 스타일링 */
-.simulator-btn {
-    margin-top: 0;
-    width: 180px;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-    top: -20px;
-}
-
-.simulator-btn .model-item {
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    width: 180px;
-    height: 60px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 8px 20px 8px 50px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    font-family: 'Noto Sans KR', sans-serif;
-    white-space: pre-line;
-    text-align: left;
-    line-height: 1.3;
-    letter-spacing: -0.02em;
-}
-
-.simulator-btn .model-item span {
-    display: block;
-    white-space: pre-line;
-}
-
-.simulator-btn .model-item .menu-icon {
-    position: absolute;
-    left: 18px;
-}
-
 .simulator-btn .model-item:hover {
-    background-color: #2563eb;
+    background-color: #3b82f6;
+    transform: translateX(4px);
 }
 
 .simulator-btn span:last-child {
@@ -193,7 +184,7 @@ body {
     width: 1160px;
     justify-content: space-between;
     margin: 0 auto;
-    margin-left: 0px;
+    margin-left: -230px;
 }
 
 .tab-card {

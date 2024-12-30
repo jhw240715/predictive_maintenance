@@ -160,15 +160,6 @@
         </div>
     </div>
 </div>
-
-<script>
-function toggleGuide() {
-    const content = document.getElementById('guide-content');
-    const icon = document.querySelector('.toggle-icon');
-    content.classList.toggle('expanded');
-    icon.textContent = content.classList.contains('expanded') ? '▲' : '▼';
-}
-</script>
 {% endblock %}
 
 {% block extra_css %}
@@ -176,10 +167,10 @@ function toggleGuide() {
 {% endblock %}
 
 {% block extra_js %}
-<!-- ES Module Shims for older browsers -->
+<!-- ES Module Shims -->
 <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
 
-<!-- Import map for Three.js and its modules -->
+<!-- Import map -->
 <script type="importmap">
 {
     "imports": {
@@ -190,73 +181,14 @@ function toggleGuide() {
 }
 </script>
 
-<!-- simulator.js 파일을 가장 먼저 로드 -->
-<script src="{% static 'js/simulator.js' %}"></script>
-
-<!-- Main initialization script -->
+<!-- Three.js 및 OrbitControls 전역 설정 -->
 <script type="module">
-    // Import Three.js and required components
     import * as THREE from 'three';
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-
-    // Make THREE available globally for compatibility
     window.THREE = THREE;
     window.OrbitControls = OrbitControls;
-
-    // Utility functions
-    function checkWebGL() {
-        try {
-            const canvas = document.createElement('canvas');
-            return !!(window.WebGLRenderingContext && 
-                (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-        } catch(e) {
-            return false;
-        }
-    }
-
-    function showErrorMessage(message) {
-        console.error('시뮬레이터 오류:', message);
-        const errorDiv = document.getElementById('webgl-error');
-        if (errorDiv) {
-            errorDiv.textContent = message;
-            errorDiv.classList.remove('hidden');
-        }
-        hideLoadingIndicator();
-    }
-
-    function hideLoadingIndicator() {
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none';
-        }
-    }
-
-    // Main initialization function
-    async function initializeSimulator() {
-        try {
-            // Check WebGL support
-            if (!checkWebGL()) {
-                throw new Error('WebGL이 지원되지 않습니다. 최신 브라우저를 사용하시거나 그래픽 드라이버를 업데이트해주세요.');
-            }
-
-            // Import simulator module
-            const { MillingMachineVisualization } = await import("{% static 'js/simulator3D.js' %}" + '?v=' + Date.now());
-            
-            // Create simulator instance
-            window.millingMachineVisualization = new MillingMachineVisualization('machine-visualization');
-            
-            // Hide loading indicator on success
-            hideLoadingIndicator();
-            
-            console.log('시뮬레이터 초기화 완료');
-            
-        } catch (error) {
-            showErrorMessage(`시뮬레이터 초기화 실패: ${error.message}`);
-            console.error('초기화 상세 오류:', error);
-        }
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', initializeSimulator);
 </script>
+
+<!-- simulator.js 로드 -->
+<script src="{% static 'js/simulator.js' %}"></script>
 {% endblock %}
