@@ -69,11 +69,6 @@ ehthumbs_vista.db
 Icon
 ._*
 
-
-# Database
-*.sqlite3
-*.db
-
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -88,11 +83,3 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-
-# Python init files
-*/__init__.py
-*/*/__init__.py
-*/*/*/__init__.py
-
-# Django migrations
-*/migrations/*
