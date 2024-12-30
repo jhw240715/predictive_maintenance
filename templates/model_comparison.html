@@ -1,4 +1,3 @@
-<!-- templates/model_comparison.html -->
 {% extends 'base.html' %}
 {% load static %}
 
@@ -10,7 +9,7 @@
 <div class="comparison-container">
     <!-- 상단 모델 네비게이션 -->
     <div class="model-nav">
-        <a href="{% url 'maintenance:logistic' %}" class="model-nav-btn {% if selected_model == 'logistic' %}active{% endif %}">
+        <a href="{% url 'maintenance:logistic_regression' %}" class="model-nav-btn {% if selected_model == 'logistic' %}active{% endif %}">
             <span class="model-icon">🔄</span>로지스틱 회귀
         </a>
         <a href="{% url 'maintenance:knn' %}" class="model-nav-btn {% if selected_model == 'knn' %}active{% endif %}">
@@ -64,36 +63,14 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for metric in report_data %}
                         <tr>
-                            <td>정상</td>
-                            <td>{{ report_data.0.precision|floatformat:2 }}%</td>
-                            <td>{{ report_data.0.recall|floatformat:2 }}%</td>
-                            <td>{{ report_data.0.f1_score|floatformat:2 }}%</td>
+                            <td>{{ metric.name }}</td>
+                            <td>{{ metric.precision|floatformat:2 }}%</td>
+                            <td>{{ metric.recall|floatformat:2 }}%</td>
+                            <td>{{ metric.f1_score|floatformat:2 }}%</td>
                         </tr>
-                        <tr>
-                            <td>공구 마모 실패</td>
-                            <td>{{ report_data.1.precision|floatformat:2 }}%</td>
-                            <td>{{ report_data.1.recall|floatformat:2 }}%</td>
-                            <td>{{ report_data.1.f1_score|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>열 발산 실패</td>
-                            <td>{{ report_data.2.precision|floatformat:2 }}%</td>
-                            <td>{{ report_data.2.recall|floatformat:2 }}%</td>
-                            <td>{{ report_data.2.f1_score|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>전력 고장</td>
-                            <td>{{ report_data.3.precision|floatformat:2 }}%</td>
-                            <td>{{ report_data.3.recall|floatformat:2 }}%</td>
-                            <td>{{ report_data.3.f1_score|floatformat:2 }}%</td>
-                        </tr>
-                        <tr>
-                            <td>제품 과변형</td>
-                            <td>{{ report_data.4.precision|floatformat:2 }}%</td>
-                            <td>{{ report_data.4.recall|floatformat:2 }}%</td>
-                            <td>{{ report_data.4.f1_score|floatformat:2 }}%</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

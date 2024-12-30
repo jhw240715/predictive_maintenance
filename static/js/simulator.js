@@ -1,330 +1,480 @@
-// simulator/static/js/simulator.js
+// Import the 3D visualization module
+import initMachine from './simulator3D.js';
 
-console.log('simulator.js loaded');
+class MillingSimulator {
+    constructor() {
+        console.log('Initializing MillingSimulator');
 
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOM Content Loaded');
-    // DOM 요소 선택
-    const parameterForm = document.getElementById('parameter-form');
-    const resultDiv = document.getElementById('prediction-result');
-    const typeTabs = document.querySelectorAll('.type-tab');
-    const typeInput = document.querySelector('input[name="type"]');
-    const sliders = document.querySelectorAll('input[type="range"]');
+        // Set up thresholds first
+        this.setupParameterThresholds();
 
-    // 슬라이더 값 표시 요소들
-    const sliderValues = {
-        Air_Temperature: document.getElementById('air-temperature-value'),
-        Process_Temperature: document.getElementById('process-temperature-value'),
-        Rotational_Speed: document.getElementById('rotational-speed-value'),
-        Torque: document.getElementById('torque-value'),
-        Tool_Wear: document.getElementById('tool-wear-value')
-    };
+        // Then initialize elements and event listeners
+        this.initializeElements();
+        this.setupEventListeners();
 
-    // 파라미터 임계값 정의 및 설명
-    const parameterThresholds = {
-        Air_Temperature: {
-            warning: 300,
-            danger: 303,
-            description: '공기 온도: 300K 이상 경고(주황색), 303K 이상 위험(빨간색)'
-        },
-        Process_Temperature: {
-            warning: 310,
-            danger: 312,
-            description: '공정 온도: 310K 이상 경고(주황색), 312K 이상 위험(빨간색)'
-        },
-        Rotational_Speed: {
-            warning: 2500,
-            danger: 2800,
-            description: '회전 속도: 2500rpm 이상 경고(주황색), 2800rpm 이상 위험(빨간색)'
-        },
-        Torque: {
-            warning: 60,
-            danger: 70,
-            description: '토크: 60Nm 이상 경고(주황색), 70Nm 이상 위험(빨간색)'
-        },
-        Tool_Wear: {
-            warning: 180,
-            danger: 220,
-            description: '공구 마모: 180분 이상 경고(주황색), 220분 이상 위험(빨간색)'
-        }
-    };
-
-    // 파생 특성 계산 함수
-    function calculateDerivedFeatures(formData) {
-        // 입력값 파싱 및 유효성 검사
-        const values = {};
-        const requiredFields = ['Air_Temperature', 'Process_Temperature', 'Rotational_Speed', 'Torque', 'Tool_Wear', 'type'];
-
-        for (const field of requiredFields) {
-            const value = formData.get(field);
-            if (value === null || value === undefined || value === '') {
-                throw new Error(`${field} 값이 없습니다.`);
-            }
-            values[field] = field !== 'type' ? parseFloat(value) : value;
-            if (field !== 'type' && isNaN(values[field])) {
-                throw new Error(`${field}의 값이 올바른 숫자 형식이 아닙니다.`);
-            }
-        }
-
-        // 파생 특성 계산
-        const tempDiff = values.Process_Temperature - values.Air_Temperature;
-        const power = (2 * Math.PI * values.Rotational_Speed * values.Torque) / 60;
-        const wearDegree = values.Tool_Wear * values.Torque;
-        const typeEncoded = { 'L': 0, 'M': 1, 'H': 2 }[values.type] ?? 0;
-
-        // 새로운 FormData 객체 생성
-        const enrichedFormData = new FormData();
-
-        // 원본 데이터 복사
-        for (const [key, value] of formData.entries()) {
-            enrichedFormData.append(key, value);
-        }
-
-        // 계산된 특성 추가
-        enrichedFormData.append('Temperature_difference', tempDiff.toString());
-        enrichedFormData.append('Power', power.toString());
-        enrichedFormData.append('Wear_degree', wearDegree.toString());
-        enrichedFormData.append('Type_encoded', typeEncoded.toString());
-
-        return enrichedFormData;
+        // Initialize 3D visualization after a short delay
+        setTimeout(() => {
+            this.init3DVisualization();
+        }, 100);
     }
 
-    // 슬라이더 상태 업데이트 함수
-    function updateSliderStatus(slider, value) {
+    setupParameterThresholds() {
+        // Define parameter thresholds for visual feedback
+        this.parameterThresholds = {
+            Air_Temperature: {
+                warning: 300,
+                danger: 303,
+                description: '공기 온도: 300K 이상 경고, 303K 이상 위험'
+            },
+            Process_Temperature: {
+                warning: 310,
+                danger: 312,
+                description: '공정 온도: 310K 이상 경고, 312K 이상 위험'
+            },
+            Rotational_Speed: {
+                warning: 2500,
+                danger: 2800,
+                description: '회전 속도: 2500rpm 이상 경고, 2800rpm 이상 위험'
+            },
+            Torque: {
+                warning: 60,
+                danger: 70,
+                description: '토크: 60Nm 이상 경고, 70Nm 이상 위험'
+            },
+            Tool_Wear: {
+                warning: 180,
+                danger: 220,
+                description: '공구 마모: 180분 이상 경고, 220분 이상 위험'
+            }
+        };
+    }
+
+    initializeElements() {
+        console.log('Initializing elements');
+
+        // Form elements
+        this.form = document.getElementById('parameter-form');
+        if (!this.form) console.error('Parameter form not found');
+
+        this.typeButtons = document.querySelectorAll('.type-tab');
+        this.typeInput = document.querySelector('input[name="type"]');
+        this.sliders = document.querySelectorAll('input[type="range"]');
+
+        // Monitoring elements
+        this.predictionResult = document.getElementById('prediction-result');
+        this.failureStatus = document.getElementById('failure-status');
+        this.failureType = document.getElementById('failure-type');
+        this.failureExplanation = document.getElementById('failure-explanation');
+        this.predictionProbability = document.getElementById('prediction-probability');
+        this.predictionTimestamp = document.getElementById('prediction-timestamp');
+
+        // Log element initialization status
+        console.log('Elements initialized:', {
+            form: !!this.form,
+            typeButtons: this.typeButtons.length,
+            typeInput: !!this.typeInput,
+            sliders: this.sliders.length,
+            predictionResult: !!this.predictionResult,
+            failureStatus: !!this.failureStatus,
+            failureType: !!this.failureType,
+            failureExplanation: !!this.failureExplanation,
+            predictionProbability: !!this.predictionProbability,
+            predictionTimestamp: !!this.predictionTimestamp
+        });
+
+        // Hide loading indicator and show error overlay if needed
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const errorOverlay = document.getElementById('error-overlay');
+
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+        }
+
+        if (!this.form || !this.typeInput || !this.predictionResult) {
+            if (errorOverlay) {
+                const errorMessage = document.getElementById('error-message');
+                if (errorMessage) {
+                    errorMessage.textContent = 'Required elements not found. Please refresh the page.';
+                }
+                errorOverlay.classList.remove('hidden');
+            }
+        }
+    }
+
+    init3DVisualization() {
+        console.log('Initializing 3D visualization');
+        try {
+            this.machine3D = initMachine('machine-visualization');
+
+            // Add resize handler
+            window.addEventListener('resize', () => {
+                if (this.machine3D) {
+                    this.machine3D.handleResize();
+                }
+            });
+
+            console.log('3D visualization initialized successfully');
+
+            // Hide loading overlay
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Error initializing 3D visualization:', error);
+
+            // Show error overlay
+            const errorOverlay = document.getElementById('error-overlay');
+            const errorMessage = document.getElementById('error-message');
+            if (errorOverlay && errorMessage) {
+                errorMessage.textContent = 'Error loading 3D visualization: ' + error.message;
+                errorOverlay.classList.remove('hidden');
+            }
+        }
+    }
+
+    setupEventListeners() {
+        console.log('Setting up event listeners');
+        if (!this.form) return;
+
+        // Type button selection
+        this.typeButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                this.handleTypeSelection(e.target);
+            });
+        });
+
+        // Slider value updates with debouncing
+        const debouncedPrediction = this.debounce(() => this.makePrediction(), 500);
+
+        this.sliders.forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                this.updateSliderValue(e.target);
+                debouncedPrediction(); // Make prediction after slider value changes
+            });
+
+            // Initialize slider values
+            this.updateSliderValue(slider);
+        });
+
+        // Form submission
+        this.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.makePrediction();
+        });
+
+        // Keyboard navigation for type buttons
+        this.setupKeyboardNavigation();
+    }
+
+    setupKeyboardNavigation() {
+        const typeTabsContainer = document.querySelector('.type-tabs');
+        if (!typeTabsContainer) return;
+
+        typeTabsContainer.addEventListener('keydown', (e) => {
+            const currentTab = document.activeElement;
+            const tabs = Array.from(this.typeButtons);
+            const index = tabs.indexOf(currentTab);
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                    e.preventDefault();
+                    const prevIndex = (index - 1 + tabs.length) % tabs.length;
+                    tabs[prevIndex].focus();
+                    this.handleTypeSelection(tabs[prevIndex]);
+                    break;
+                case 'ArrowRight':
+                case 'ArrowDown':
+                    e.preventDefault();
+                    const nextIndex = (index + 1) % tabs.length;
+                    tabs[nextIndex].focus();
+                    this.handleTypeSelection(tabs[nextIndex]);
+                    break;
+            }
+        });
+    }
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    handleTypeSelection(button) {
+        if (!this.typeInput) return;
+
+        // Update button states
+        this.typeButtons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-checked', 'false');
+        });
+        button.classList.add('active');
+        button.setAttribute('aria-checked', 'true');
+
+        // Update hidden input
+        this.typeInput.value = button.dataset.value;
+
+        // Trigger prediction update
+        this.makePrediction();
+    }
+
+    updateSliderValue(slider) {
         const container = slider.closest('.slider-container');
         if (!container) return;
 
         const valueDisplay = container.querySelector('.slider-value');
-        const track = container.querySelector('.slider-track');
+        if (!valueDisplay) return;
 
-        if (valueDisplay && track) {
-            valueDisplay.textContent = value;
+        // Update display value
+        valueDisplay.textContent = slider.value;
 
-            const status = evaluateParameterStatus(slider.name, value);
+        // Update ARIA values
+        slider.setAttribute('aria-valuenow', slider.value);
 
-            track.classList.remove('normal', 'warning', 'danger');
-            valueDisplay.classList.remove('normal', 'warning', 'danger');
+        // Get thresholds for this parameter
+        const paramName = slider.name;
+        const thresholds = this.parameterThresholds[paramName];
 
-            track.classList.add(status);
-            valueDisplay.classList.add(status);
+        // Fallback thresholds if none defined for this parameter
+        const defaultThresholds = {
+            warning: Number(slider.max) * 0.7,
+            danger: Number(slider.max) * 0.9,
+            description: `${paramName}: ${slider.max * 0.7} 이상 경고, ${slider.max * 0.9} 이상 위험`
+        };
 
-            // 툴팁 설명 추가
-            const description = parameterThresholds[slider.name]?.description || '';
-            valueDisplay.title = description;
-            slider.title = description;
-            track.title = description;
+        // Update slider status based on thresholds
+        this.updateSliderStatus(slider, container, valueDisplay, thresholds || defaultThresholds);
 
-            // 실시간 예측 업데이트
-            if (parameterForm) {
-                const formData = new FormData(parameterForm);
-                requestPrediction(formData);
+        // Update 3D visualization parameters
+        if (this.machine3D) {
+            this.machine3D.updateParameter(paramName, parseFloat(slider.value));
+        }
+    }
+
+    updateSliderStatus(slider, container, valueDisplay, thresholds) {
+        const value = parseFloat(slider.value);
+
+        // Remove existing status classes
+        ['normal', 'warning', 'danger'].forEach(status => {
+            valueDisplay.classList.remove(status);
+            container.querySelector('.slider-track').classList.remove(status);
+        });
+
+        // Add appropriate status class
+        let statusClass = 'normal';
+        if (thresholds) {
+            if (value >= thresholds.danger) {
+                statusClass = 'danger';
+            } else if (value >= thresholds.warning) {
+                statusClass = 'warning';
             }
         }
-    }
 
-    // 파라미터 상태 평가 함수
-    function evaluateParameterStatus(paramName, value) {
-        const threshold = parameterThresholds[paramName];
-        if (!threshold) return 'normal';
+        valueDisplay.classList.add(statusClass);
+        container.querySelector('.slider-track').classList.add(statusClass);
 
-        const val = parseFloat(value);
-        if (val >= threshold.danger) {
-            return 'danger';
-        }
-        if (val >= threshold.warning) {
-            return 'warning';
-        }
-        return 'normal';
-    }
+        // Update ARIA labels and tooltips
+        const status = statusClass === 'normal' ? '정상' : statusClass === 'warning' ? '경고' : '위험';
+        slider.setAttribute('aria-label', `${slider.name} ${status} 상태: ${value}`);
 
-    // 예측 결과 표시 함수
-    function updatePredictionDisplay(result) {
-        const predictionResult = document.getElementById('prediction-result');
-        const predictionText = document.getElementById('prediction-text');
-        const predictionProb = document.getElementById('prediction-probability');
-        const timestamp = document.getElementById('prediction-timestamp');
-
-        if (!predictionResult || !predictionText || !predictionProb || !timestamp) {
-            console.error('예측 결과 표시 요소를 찾을 수 없습니다.');
-            return;
-        }
-
-        predictionResult.classList.remove('hidden');
-
-        // 예측 결과 매핑
-        const predictionMap = {
-            0: { text: '정상 (Normal)', class: 'status-normal' },
-            1: { text: '공구 마모 실패 (Tool Wear Failure)', class: 'status-twf' },
-            2: { text: '열 발산 실패 (Heat Dissipation Failure)', class: 'status-hdf' },
-            3: { text: '전력 고장 (Power Failure)', class: 'status-pwf' },
-            4: { text: '제품 과변형 (Overstrain Failure)', class: 'status-osf' }
-        };
-
-        const prediction = predictionMap[result.prediction];
-        
-        // 이전 상태 클래스 제거
-        predictionText.className = '';
-        // 새로운 상태 클래스 추가
-        predictionText.classList.add(prediction.class);
-        predictionText.textContent = prediction.text;
-
-        // 확률 표시
-        predictionProb.textContent = `${(result.probability * 100).toFixed(1)}%`;
-        
-        // 타임스탬프 업데이트
-        timestamp.textContent = new Date().toLocaleString();
-
-        // 3D 모델 상태 업데이트
-        if (window.millingMachineVisualization) {
-            window.millingMachineVisualization.updateMachineState(result.prediction);
+        // Add tooltip with threshold description
+        if (thresholds) {
+            valueDisplay.title = thresholds.description;
+            slider.title = thresholds.description;
         }
     }
 
-    // 상태에 따른 클래스 반환 함수
-    function getStatusClass(prediction) {
-        const classMap = {
-            'No Failure': 'status-normal',
-            'TWF': 'status-twf',
-            'HDF': 'status-hdf',
-            'PWF': 'status-pwf',
-            'OSF': 'status-osf'
-        };
-        return classMap[prediction] || 'status-normal';
-    }
-
-    // simulator.js의 requestPrediction 함수 수정
-
-    async function requestPrediction(formData) {
+    async makePrediction() {
         try {
-            // 전송할 데이터 로깅
-            console.log('전송할 원본 데이터:', {
-                Air_Temperature: formData.get('Air_Temperature'),
-                Process_Temperature: formData.get('Process_Temperature'),
-                Rotational_Speed: formData.get('Rotational_Speed'),
-                Torque: formData.get('Torque'),
-                Tool_Wear: formData.get('Tool_Wear'),
-                type: formData.get('type')
-            });
+            const formData = new FormData(this.form);
 
-            // 데이터 검증
-            const numericFields = {
-                'Air_Temperature': formData.get('Air_Temperature'),
-                'Process_Temperature': formData.get('Process_Temperature'),
-                'Rotational_Speed': formData.get('Rotational_Speed'),
-                'Torque': formData.get('Torque'),
-                'Tool_Wear': formData.get('Tool_Wear')
-            };
+            // Show loading state
+            this.updatePredictionLoadingState(true);
 
-            // 누락된 필드 확인
-            for (const [field, value] of Object.entries(numericFields)) {
-                if (value === null || value === undefined || value === '') {
-                    throw new Error(`${field} 값이 누락되었습니다.`);
-                }
-                const numValue = parseFloat(value);
-                if (isNaN(numValue)) {
-                    throw new Error(`${field}의 값이 올바른 숫자 형식이 아닙니다.`);
-                }
-            }
+            // Calculate derived features
+            const processedData = this.calculateDerivedFeatures(formData);
 
-            // 파생 특성 계산
-            const airTemp = parseFloat(numericFields.Air_Temperature);
-            const processTemp = parseFloat(numericFields.Process_Temperature);
-            const rotSpeed = parseFloat(numericFields.Rotational_Speed);
-            const torque = parseFloat(numericFields.Torque);
-            const toolWear = parseFloat(numericFields.Tool_Wear);
-            const type = formData.get('type');
-
-            // 새로운 FormData 객체 생성
-            const processedData = new FormData();
-
-            // 기본 ���드 추가
-            processedData.append('Air_Temperature', airTemp.toString());
-            processedData.append('Process_Temperature', processTemp.toString());
-            processedData.append('Rotational_Speed', rotSpeed.toString());
-            processedData.append('Torque', torque.toString());
-            processedData.append('Tool_Wear', toolWear.toString());
-            processedData.append('type', type);
-
-            // 파생 특성 추가
-            const tempDiff = processTemp - airTemp;
-            const power = (2 * Math.PI * rotSpeed * torque) / 60;
-            const wearDegree = toolWear * torque;
-            const typeEncoded = { 'L': 0, 'M': 1, 'H': 2 }[type] ?? 0;
-
-            processedData.append('Temperature_difference', tempDiff.toString());
-            processedData.append('Power', power.toString());
-            processedData.append('Wear_degree', wearDegree.toString());
-            processedData.append('Type_encoded', typeEncoded.toString());
-
-            // CSRF 토큰 추가
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            processedData.append('csrfmiddlewaretoken', csrfToken);
-
-            // 전송할 데이터 확인
-            console.log('전송할 가공된 데이터:', Object.fromEntries(processedData));
-
-            // 서버로 요청 전송
-            const response = await fetch('/simulator/predict/', {
+            const response = await fetch('/api/predict/', {
                 method: 'POST',
                 body: processedData,
                 headers: {
-                    'X-CSRFToken': csrfToken
+                    'X-Requested-With': 'XMLHttpRequest',
                 }
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || '서버 응답 오류');
+            const result = await response.json();
+            console.log('Prediction result:', result);
+
+            // Hide loading state
+            this.updatePredictionLoadingState(false);
+
+            if (result.status === 'success') {
+                this.updatePredictionDisplay(result);
+            } else {
+                console.error('Prediction failed:', result.message);
+                this.showError(result.message);
+            }
+        } catch (error) {
+            console.error('Error making prediction:', error);
+            this.updatePredictionLoadingState(false);
+            this.showError('예측 중 오류가 발생했습니다.');
+        }
+    }
+
+    updatePredictionLoadingState(isLoading) {
+        const submitButton = this.form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = isLoading;
+            submitButton.textContent = isLoading ? '예측 중...' : '예측 실행';
+        }
+    }
+
+    calculateDerivedFeatures(formData) {
+        const processedData = new FormData();
+
+        // Copy original values
+        for (let [key, value] of formData.entries()) {
+            processedData.append(key, value);
+        }
+
+        // Calculate derived features
+        const values = {
+            Air_Temperature: parseFloat(formData.get('Air_Temperature')),
+            Process_Temperature: parseFloat(formData.get('Process_Temperature')),
+            Rotational_Speed: parseFloat(formData.get('Rotational_Speed')),
+            Torque: parseFloat(formData.get('Torque')),
+            Tool_Wear: parseFloat(formData.get('Tool_Wear')),
+            Type: formData.get('type')
+        };
+
+        // Add derived features
+        processedData.append('Temperature_difference',
+            (values.Process_Temperature - values.Air_Temperature).toString());
+        processedData.append('Power',
+            ((2 * Math.PI * values.Rotational_Speed * values.Torque) / 60).toString());
+        processedData.append('Tool_wear_minutes',
+            (values.Tool_Wear * 60).toString());
+
+        return processedData;
+    }
+
+    updatePredictionDisplay(result) {
+        if (!this.predictionResult || !this.failureStatus || !this.failureType ||
+            !this.failureExplanation || !this.predictionProbability || !this.predictionTimestamp) {
+            console.error('Required DOM elements not found');
+            return;
+        }
+
+        try {
+            // Show result container
+            this.predictionResult.classList.remove('hidden');
+
+            // Update status and type
+            const failureClass = this.getFailureClass(result.prediction);
+            this.failureStatus.textContent = failureClass.status;
+            this.failureStatus.className = `status-value ${failureClass.className}`;
+
+            // Update failure information
+            if (result.failure_info) {
+                this.failureType.textContent = result.failure_info.kr;
+                this.failureExplanation.textContent = result.failure_info.description;
             }
 
-            const result = await response.json();
-            updatePredictionDisplay(result);
+            // Update probability
+            if (result.probabilities && result.probabilities[result.prediction]) {
+                const probability = (result.probabilities[result.prediction] * 100).toFixed(2);
+                this.predictionProbability.textContent = `${probability}%`;
+            }
+
+            // Update timestamp
+            const now = new Date();
+            this.predictionTimestamp.textContent = now.toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            // Update 3D visualization
+            if (this.machine3D) {
+                this.machine3D.updateFailureState(failureClass.machineState);
+            }
 
         } catch (error) {
-            console.error('예측 요청 오류:', error);
-            const predictionResult = document.getElementById('prediction-result');
-            if (predictionResult) {
-                predictionResult.innerHTML = `
-                <div class="error-message">
-                    예측 중 오류가 발생했습니다: ${error.message}
+            console.error('Error updating prediction display:', error);
+            this.showError('결과 표시 중 오류가 발생했습니다.');
+        }
+    }
+
+    getFailureClass(prediction) {
+        const classes = {
+            'none': { status: '정상', className: 'status-normal', machineState: 0 },
+            'TWF': { status: '공구 마모 실패', className: 'status-twf', machineState: 1 },
+            'HDF': { status: '열 발산 실패', className: 'status-hdf', machineState: 2 },
+            'PWF': { status: '전력 고장', className: 'status-pwf', machineState: 3 },
+            'OSF': { status: '과부하', className: 'status-osf', machineState: 4 }
+        };
+        return classes[prediction] || classes['none'];
+    }
+
+    showError(message) {
+        if (this.predictionResult) {
+            this.predictionResult.classList.remove('hidden');
+            this.predictionResult.innerHTML = `
+                <div class="error-message bg-red-50 text-red-700 p-4 rounded-lg" role="alert">
+                    <p class="font-medium">오류 발생</p>
+                    <p>${message}</p>
                 </div>
             `;
-                predictionResult.classList.remove('hidden');
+
+            // Reset 3D visualization if available
+            if (this.machine3D) {
+                this.machine3D.updateFailureState(0); // Reset to normal state
             }
         }
     }
 
-    // 이벤트 리스너 설정
-    sliders.forEach(slider => {
-        slider.addEventListener('input', function () {
-            const value = this.value;
-            updateSliderStatus(this, value);
+    // Clean up event listeners and resources
+    dispose() {
+        // Remove window resize listener
+        window.removeEventListener('resize', this.handleResize);
+
+        // Remove type button listeners
+        this.typeButtons.forEach(button => {
+            button.removeEventListener('click', this.handleTypeSelection);
         });
-    });
 
-    typeTabs.forEach(tab => {
-        tab.addEventListener('click', function () {
-            typeTabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            typeInput.value = this.dataset.value;
+        // Remove slider listeners
+        this.sliders.forEach(slider => {
+            slider.removeEventListener('input', this.updateSliderValue);
         });
-    });
 
-    // 폼 제출 이벤트 처리
-    parameterForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        await requestPrediction(formData);
-    });
+        // Remove form submit listener
+        if (this.form) {
+            this.form.removeEventListener('submit', this.makePrediction);
+        }
 
-    // 초기화
-    const firstTab = document.querySelector('.type-tab[data-value="L"]');
-    if (firstTab) {
-        firstTab.click();
+        // Dispose 3D visualization
+        if (this.machine3D) {
+            this.machine3D.dispose();
+        }
     }
+}
 
-    // 초기 슬라이더 상태 설정
-    sliders.forEach(slider => {
-        updateSliderStatus(slider, slider.value);
-    });
+// Initialize simulator when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing simulator');
+    const simulator = new MillingSimulator();
+
+    // Store simulator instance for cleanup
+    window.millingSimulator = simulator;
 });

@@ -1,82 +1,92 @@
-import joblib
-import json
-import pandas as pd
 import numpy as np
-import os
-import logging
-from django.conf import settings
+import joblib
+from .config import MLConfig
 
-# 로거 설정
-logger = logging.getLogger(__name__)
-
-class FailurePredictor:
-    def __init__(self):
-        self.model_path = os.path.join(settings.BASE_DIR, 'maintenance', 'ml', 'models')  # 경로 수정
-        model_file = os.path.join(self.model_path, 'xgboost_model.pkl')
-        
-        logger.info(f"모델 파일 경로: {model_file}")
-        logger.info(f"파일 존재 여부: {os.path.exists(model_file)}")
-        
-        try:
-            # 모델 및 설정 파일 로드
-            self.model = joblib.load(model_file)
-            with open(os.path.join(self.model_path, 'feature_config.json'), 'r', encoding='utf-8') as f:
-                self.feature_config = json.load(f)
-            
-            logger.info("모델 정보:")
-            logger.info(f"- 타입: {type(self.model)}")
-            logger.info(f"- 특성 개수: {self.model.n_features_in_}")
-            
-        except Exception as e:
-            logger.error(f"모델 로드 중 오류 발생: {str(e)}")
-            raise
-
-        # 고장 유형 정의
-        self.failure_types = {
-            0: '정상',
-            1: '공구 마모 실패',
-            2: '열 발산 실패',
-            3: '전력 고장',
-            4: '제품 과변형'
-        }
+class MillingMachinePredictor:
+    def __init__(self, model_path):
+        """Initialize the predictor with a trained model"""
+        self.model = joblib.load(model_path)
+        self.config = MLConfig()
 
     def validate_input(self, input_data):
-        """입력 데이터 검증"""
-        for feature, value in input_data.items():
-            if feature in self.feature_config['features']:
-                feature_range = self.feature_config['features'][feature]
-                if value < feature_range['min'] or value > feature_range['max']:
-                    raise ValueError(
-                        f"{feature}의 값이 허용 범위를 벗어났습니다. "
-                        f"(허용 범위: {feature_range['min']} ~ {feature_range['max']})"
-                    )
+        """Validate input data against configuration"""
+        for feature, config in self.config.FEATURE_CONFIG['features'].items():
+            if feature not in input_data:
+                raise ValueError(f"Missing required feature: {feature}")
+            
+            value = input_data[feature]
+            if feature == 'type':
+                if value not in config['options']:
+                    raise ValueError(f"Invalid type value. Must be one of {config['options']}")
+            else:
+                try:
+                    value = float(value)
+                    if value < config['min'] or value > config['max']:
+                        raise ValueError(
+                            f"Value for {feature} must be between "
+                            f"{config['min']} and {config['max']} {config['unit']}"
+                        )
+                except ValueError:
+                    raise ValueError(f"Invalid value for {feature}")
 
     def predict(self, input_data):
-        """예측 수행"""
-        try:
-            # 입력 데이터 검증
-            self.validate_input(input_data)
+        """Make a prediction based on input data"""
+        # Validate input
+        self.validate_input(input_data)
+        
+        # Calculate derived features
+        derived_features = self.config.calculate_derived_features(input_data)
+        
+        # Create feature vector
+        features = np.array([
+            derived_features[feature_name] 
+            for feature_name in self.config.FEATURE_NAMES
+        ]).reshape(1, -1)
+        
+        # Make prediction
+        prediction = self.model.predict(features)[0]
+        probabilities = self.model.predict_proba(features)[0]
+        
+        # Get failure type information
+        failure_info = self.config.FAILURE_TYPES.get(
+            prediction,
+            self.config.FAILURE_TYPES['none']
+        )
+        
+        # Prepare response
+        response = {
+            'prediction': prediction,
+            'failure_info': failure_info,
+            'probabilities': {
+                failure_type: float(prob)
+                for failure_type, prob in zip(self.model.classes_, probabilities)
+            },
+            'input_parameters': input_data,
+            'derived_features': derived_features
+        }
+        
+        return response
+
+    def get_component_status(self, prediction_result):
+        """Get the status of different machine components based on prediction"""
+        failure_code = prediction_result['prediction']
+        component_status = {
+            'tool': 'normal',
+            'cooling_system': 'normal',
+            'power_system': 'normal',
+            'mechanical_system': 'normal'
+        }
+        
+        if failure_code == 'TWF':
+            component_status['tool'] = 'error'
+        elif failure_code == 'HDF':
+            component_status['cooling_system'] = 'error'
+        elif failure_code == 'PWF':
+            component_status['power_system'] = 'error'
+        elif failure_code == 'OSF':
+            component_status['mechanical_system'] = 'error'
+        elif failure_code == 'RNF':
+            # For random failures, mark all systems as warning
+            component_status = {k: 'warning' for k in component_status}
             
-            # 입력 데이터 변환
-            features = pd.DataFrame([input_data])
-            logger.info("처리된 입력 데이터: %s", features)
-            
-            # 예측 수행
-            prediction = self.model.predict(features)[0]
-            probabilities = self.model.predict_proba(features)[0]
-            
-            result = {
-                'status': 'success',
-                'prediction': self.failure_types[prediction],
-                'predicted_class': int(prediction),
-                'probabilities': {
-                    self.failure_types[i]: float(prob)
-                    for i, prob in enumerate(probabilities)
-                }
-            }
-            logger.info("예측 결과: %s", result)
-            return result
-            
-        except Exception as e:
-            logger.error("예측 중 오류 발생: %s", str(e))
-            raise 
+        return component_status

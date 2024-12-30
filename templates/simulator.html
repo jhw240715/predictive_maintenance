@@ -1,262 +1,177 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}QRCode 밀링 머신 교육용 시뮬레이터{% endblock %}
+{% block title %}밀링 머신 교육용 시뮬레이터{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/simulator.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="simulator-container">
     <div class="simulator-layout">
-        <!-- 좌측: 밀링머신 시각화 -->
+        <!-- Left Side: Milling Machine Visualization -->
         <div class="simulator-left">
             <div class="visualization-card">
                 <div class="card-header">
                     <h2>밀링머신 상태</h2>
                 </div>
+                <div class="card-body relative">
+                    <div id="machine-visualization" class="w-full h-full">
+                        <!-- Loading Overlay -->
+                        <div id="loading-overlay" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="spinner"></div>
+                                <p class="mt-2 text-gray-600">3D 모델 로딩 중...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Error Overlay -->
+                        <div id="error-overlay" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                            <div class="text-center text-red-600">
+                                <p id="error-message">3D 모델 로드 실패</p>
+                                <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                                    재시도
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Failure Status Monitoring -->
+            <div class="monitoring-card">
+                <div class="card-header">
+                    <h2>고장 상태 모니터링</h2>
+                </div>
                 <div class="card-body">
-                    <div id="machine-visualization"></div>
-                    <!-- WebGL 에러 메시지를 표시할 컨테이너 -->
-                    <div id="webgl-error" class="webgl-error hidden"></div>
-                    <!-- 로딩 인디케이터 -->
-                    <div id="loading-indicator" class="loading-indicator">
-                        <div class="spinner"></div>
-                        <p>3D 모델 로딩 중...</p>
+                    <div id="prediction-result" class="hidden">
+                        <dl class="result-text grid gap-4">
+                            <!-- 상태 표시 -->
+                            <div class="status-item">
+                                <dt class="text-gray-600">상태:</dt>
+                                <dd id="failure-status" class="status-value font-semibold"></dd>
+                            </div>
+                            
+                            <!-- 고장 유형 -->
+                            <div class="status-item">
+                                <dt class="text-gray-600">고장 유형:</dt>
+                                <dd id="failure-type" class="status-value font-semibold"></dd>
+                            </div>
+                            
+                            <!-- 신뢰도 -->
+                            <div class="status-item">
+                                <dt class="text-gray-600">신뢰도:</dt>
+                                <dd id="prediction-probability" class="status-value font-semibold"></dd>
+                            </div>
+                        </dl>
+
+                        <!-- 고장 설명 -->
+                        <div class="failure-description mt-4 p-4 bg-gray-50 rounded-lg">
+                            <p id="failure-explanation" class="text-gray-700"></p>
+                        </div>
+
+                        <!-- 타임스탬프 -->
+                        <time id="prediction-timestamp" class="result-timestamp block mt-4 text-sm text-gray-500"></time>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 우측: 제어 및 모니터링 패널 -->
+        <!-- Right Side: Control Panel -->
         <div class="simulator-right">
-            <!-- 교육 가이드 -->
-            <div class="card">
+            <!-- Educational Guide -->
+            <div class="guide-card">
                 <div class="card-header">
                     <h2>교육 가이드</h2>
                 </div>
                 <div class="card-body">
-                    <!-- 교육 목적 -->
                     <div class="guide-purpose">
                         <h3>교육 목적</h3>
-                        <p>밀링 머신 작업자들이 적절한 교육 없이 기계를 다룰 경우 <strong>여러 고장이 발생</strong>할 수 있으며, 고장이 발생할 경우 <strong>생산에 차질이 생겨 제조사에 손실</strong>이 발생할 수 있습니다.</p>
-                        <p>본 교육은 작업자가 밀링 머신을 사용할 때 <strong>어떤 부분으로 인해 고장이 발생할 수 있는지를 학습</strong>하여 작업 시 발생할 수 있는 <strong>고장이나 실패를 예방</strong>하고 이를 통해 <strong>제조 과정에서 손실을 최소화</strong>하는 것을 목적으로 합니다.</p>
+                        <p>밀링 머신 작업자들이 적절한 교육 없이 기계를 다룰 경우 <strong>여러 고장이 발생</strong>할 수 있으며, 
+                           고장이 발생할 경우 <strong>생산에 차질이 생겨 제조사에 손실</strong>이 발생할 수 있습니다.</p>
+                        <p class="mt-2">본 교육은 작업자가 밀링 머신을 사용할 때 <strong>어떤 부분으로 인해 고장이 발생할 수 있는지를 학습</strong>하여 
+                           작업 시 발생할 수 있는 <strong>고장이나 실패를 예방</strong>하고 이를 통해 <strong>제조 과정에서 손실을 최소화</strong>하는 것을 목적으로 합니다.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 생산 작동 파라미터 -->
-            <div class="card">
+            <!-- Operation Parameters -->
+            <div class="parameter-card">
                 <div class="card-header">
                     <h2>생산 작동 파라미터</h2>
                 </div>
                 <div class="card-body">
                     <form id="parameter-form" class="parameter-panel">
                         {% csrf_token %}
-                        <!-- 제품 유형 선택 -->
-                        <div class="form-group">
-                            <div class="type-tabs">
-                                <button type="button" class="type-tab" data-value="L">LOW</button>
-                                <button type="button" class="type-tab" data-value="M">MEDIUM</button>
-                                <button type="button" class="type-tab" data-value="H">HIGH</button>
+                        
+                        <!-- Product Type Selection -->
+                        <fieldset class="form-group">
+                            <legend class="sr-only">제품 유형 선택</legend>
+                            <div class="type-tabs" role="radiogroup" aria-label="제품 유형">
+                                <button type="button" class="type-tab active" data-value="L" role="radio" aria-checked="true">LOW</button>
+                                <button type="button" class="type-tab" data-value="M" role="radio" aria-checked="false">MEDIUM</button>
+                                <button type="button" class="type-tab" data-value="H" role="radio" aria-checked="false">HIGH</button>
                             </div>
                             <input type="hidden" name="type" value="L">
-                        </div>
+                        </fieldset>
 
-                        <!-- Air Temperature -->
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="slider-label">Air Temperature [K]</label>
-                                <span class="slider-value normal" id="air-temperature-value">295.3</span>
+                        <!-- Parameter Sliders -->
+                        {% for name, config in feature_config.items %}
+                            {% if name != 'type' %}
+                            <div class="slider-container">
+                                <label class="slider-header" for="{{ name|lower }}-slider">
+                                    <span class="slider-label">{{ name|cut:"_" }} [{{ config.unit }}]</span>
+                                    <span class="slider-value normal" id="{{ name|lower }}-value" 
+                                          aria-live="polite">{{ config.default }}</span>
+                                </label>
+                                <div class="slider-track normal">
+                                    <input type="range" 
+                                           id="{{ name|lower }}-slider"
+                                           name="{{ name }}" 
+                                           min="{{ config.min }}" 
+                                           max="{{ config.max }}" 
+                                           step="0.1" 
+                                           value="{{ config.default }}"
+                                           aria-valuemin="{{ config.min }}"
+                                           aria-valuemax="{{ config.max }}"
+                                           aria-valuenow="{{ config.default }}">
+                                </div>
+                                <div class="slider-limits" aria-hidden="true">
+                                    <span class="min-value">{{ config.min }}</span>
+                                    <span class="max-value">{{ config.max }}</span>
+                                </div>
                             </div>
-                            <div class="slider-track normal">
-                                <input type="range" name="Air_Temperature" 
-                                       min="295.3" max="304.5" step="0.1" 
-                                       value="295.3">
-                            </div>
-                        </div>
+                            {% endif %}
+                        {% endfor %}
 
-                        <!-- Process Temperature -->
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="slider-label">Process Temperature [K]</label>
-                                <span class="slider-value normal" id="process-temperature-value">305.7</span>
-                            </div>
-                            <div class="slider-track normal">
-                                <input type="range" name="Process_Temperature" 
-                                       min="305.7" max="313.8" step="0.1" 
-                                       value="305.7">
-                            </div>
-                        </div>
-
-                        <!-- Rotational Speed -->
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="slider-label">Rotational Speed [rpm]</label>
-                                <span class="slider-value normal" id="rotational-speed-value">1168</span>
-                            </div>
-                            <div class="slider-track normal">
-                                <input type="range" name="Rotational_Speed" 
-                                       min="1168" max="2886" step="1" 
-                                       value="1168">
-                            </div>
-                        </div>
-
-                        <!-- Torque -->
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="slider-label">Torque [Nm]</label>
-                                <span class="slider-value normal" id="torque-value">3.8</span>
-                            </div>
-                            <div class="slider-track normal">
-                                <input type="range" name="Torque" 
-                                       min="3.8" max="76.6" step="0.1" 
-                                       value="3.8">
-                            </div>
-                        </div>
-
-                        <!-- Tool Wear -->
-                        <div class="slider-container">
-                            <div class="slider-header">
-                                <label class="slider-label">Tool Wear [min]</label>
-                                <span class="slider-value normal" id="tool-wear-value">0</span>
-                            </div>
-                            <div class="slider-track normal">
-                                <input type="range" name="Tool_Wear" 
-                                       min="0" max="253" step="1" 
-                                       value="0">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="submit-button">예측 실행</button>
+                        <button type="submit" class="submit-button">
+                            예측 실행
+                        </button>
                     </form>
-                </div>
-            </div>
-
-            <!-- 고장 상태 모니터링 -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>고장 상태 모니터링</h2>
-                </div>
-                <div class="card-body">
-                    <div id="prediction-result" class="hidden">
-                        <div class="result-text">
-                            <p>예측된 상태: <span id="prediction-text"></span></p>
-                            <p>신뢰도: <span id="prediction-probability"></span></p>
-                            <div class="failure-description">
-                                <p>고장 유형 설명:</p>
-                                <ul>
-                                    <li class="status-normal">0: 정상 (Normal)</li>
-                                    <li class="status-twf">1: 공구 마모 실패 (Tool Wear Failure)</li>
-                                    <li class="status-hdf">2: 열 발산 실패 (Heat Dissipation Failure)</li>
-                                    <li class="status-pwf">3: 전력 고장 (Power Failure)</li>
-                                    <li class="status-osf">4: 제품 과변형 (Overstrain Failure)</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="result-timestamp">
-                            <span id="prediction-timestamp"></span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-function toggleGuide() {
-    const content = document.getElementById('guide-content');
-    const icon = document.querySelector('.toggle-icon');
-    content.classList.toggle('expanded');
-    icon.textContent = content.classList.contains('expanded') ? '▲' : '▼';
-}
-</script>
-{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/simulator.css' %}">
 {% endblock %}
 
 {% block extra_js %}
-<!-- ES Module Shims for older browsers -->
+<!-- Module loader -->
 <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
 
-<!-- Import map for Three.js and its modules -->
+<!-- Import map for Three.js and dependencies -->
 <script type="importmap">
 {
     "imports": {
         "three": "https://unpkg.com/three@0.156.1/build/three.module.js",
         "three/addons/": "https://unpkg.com/three@0.156.1/examples/jsm/",
-        "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.156.1/examples/jsm/controls/OrbitControls.js"
+        "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.156.1/examples/jsm/controls/OrbitControls.js",
+        "three/examples/jsm/loaders/GLTFLoader": "https://unpkg.com/three@0.156.1/examples/jsm/loaders/GLTFLoader.js"
     }
 }
 </script>
 
-<!-- simulator.js 파일을 가장 먼저 로드 -->
-<script src="{% static 'js/simulator.js' %}"></script>
-
-<!-- Main initialization script -->
-<script type="module">
-    // Import Three.js and required components
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-
-    // Make THREE available globally for compatibility
-    window.THREE = THREE;
-    window.OrbitControls = OrbitControls;
-
-    // Utility functions
-    function checkWebGL() {
-        try {
-            const canvas = document.createElement('canvas');
-            return !!(window.WebGLRenderingContext && 
-                (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-        } catch(e) {
-            return false;
-        }
-    }
-
-    function showErrorMessage(message) {
-        console.error('시뮬레이터 오류:', message);
-        const errorDiv = document.getElementById('webgl-error');
-        if (errorDiv) {
-            errorDiv.textContent = message;
-            errorDiv.classList.remove('hidden');
-        }
-        hideLoadingIndicator();
-    }
-
-    function hideLoadingIndicator() {
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none';
-        }
-    }
-
-    // Main initialization function
-    async function initializeSimulator() {
-        try {
-            // Check WebGL support
-            if (!checkWebGL()) {
-                throw new Error('WebGL이 지원되지 않습니다. 최신 브라우저를 사용하시거나 그래픽 드라이버를 업데이트해주세요.');
-            }
-
-            // Import simulator module
-            const { MillingMachineVisualization } = await import("{% static 'js/simulator3D.js' %}" + '?v=' + Date.now());
-            
-            // Create simulator instance
-            window.millingMachineVisualization = new MillingMachineVisualization('machine-visualization');
-            
-            // Hide loading indicator on success
-            hideLoadingIndicator();
-            
-            console.log('시뮬레이터 초기화 완료');
-            
-        } catch (error) {
-            showErrorMessage(`시뮬레이터 초기화 실패: ${error.message}`);
-            console.error('초기화 상세 오류:', error);
-        }
-    }
-
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', initializeSimulator);
-</script>
+<!-- Main simulator scripts -->
+<script type="module" src="{% static 'js/simulator.js' %}"></script>
 {% endblock %}
