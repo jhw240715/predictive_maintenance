@@ -25,5 +25,5 @@ urlpatterns = [
     path('random_forest/', views.random_forest, name='random_forest'),
     path('xgboost/', views.xgboost, name='xgboost'),
     path('simulator/', views.simulator, name='simulator'),
-    path('simulator/predict/', views.predict_failure, name='predict'),  # URL 패턴 수정
+    path('api/predict/', views.predict_failure, name='predict_failure'),  # URL 패턴 수정
 ]

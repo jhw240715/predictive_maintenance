@@ -820,34 +820,27 @@ input[type="range"]::-webkit-slider-thumb {
     color: #374151;
 }
 
+/* 예측 결과 디스플레이 스타일 */
 #prediction-display {
     padding: 0.75rem;
     border-radius: 0.375rem;
     font-weight: 600;
     text-align: center;
+    color: white;
+    /* 모든 텍스트는 흰색으로 */
 }
 
+/* 정상 상태 - 초록색 */
 #prediction-display.normal {
     background-color: #10B981;
-    color: white;
+    /* 초록색 */
 }
 
-#prediction-display.tool-wear {
-    background-color: #F59E0B;
-    color: white;
-}
-
-#prediction-display.heat-failure {
-    background-color: #EF4444;
-    color: white;
-}
-
-#prediction-display.power-failure {
-    background-color: #6366F1;
-    color: white;
-}
-
+/* 모든 고장 상태 - 빨간색 */
+#prediction-display.tool-wear,
+#prediction-display.heat-failure,
+#prediction-display.power-failure,
 #prediction-display.overstrain {
-    background-color: #8B5CF6;
-    color: white;
+    background-color: #EF4444;
+    /* 빨간색 */
 }

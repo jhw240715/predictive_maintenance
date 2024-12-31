@@ -1,88 +1,118 @@
-import joblib
-import json
-import pandas as pd
 import numpy as np
-import os
-import logging
-from django.conf import settings
+import joblib
+from .config import MLConfig
 
-# 로거 설정
-logger = logging.getLogger(__name__)
-
-class FailurePredictor:
-    def __init__(self):
-        self.model_path = os.path.join(settings.BASE_DIR, 'maintenance', 'ml', 'models')  # 경로 수정
-        model_file = os.path.join(self.model_path, 'model_rfc_fix.pkl')
-        
-        logger.info(f"모델 파일 경로: {model_file}")
-        logger.info(f"파일 존재 여부: {os.path.exists(model_file)}")
-        
-        try:
-            # 모델 및 설정 파일 로드
-            self.model = joblib.load(model_file)
-            with open(os.path.join(self.model_path, 'feature_config.json'), 'r', encoding='utf-8') as f:
-                self.feature_config = json.load(f)
-            
-            logger.info("모델 정보:")
-            logger.info(f"- 타입: {type(self.model)}")
-            logger.info(f"- 특성 개수: {self.model.n_features_in_}")
-            
-            # 모델의 feature 이름 확인 및 로깅
-            if hasattr(self.model, 'feature_names_in_'):
-                logger.info("모델의 feature 이름:")
-                for name in self.model.feature_names_in_:
-                    logger.info(f"- {name}")
-            
-        except Exception as e:
-            logger.error(f"모델 로드 중 오류 발생: {str(e)}")
-            raise
-
-        # 고장 유형 정의
+class MillingMachinePredictor:
+    def __init__(self, model_path):
+        """
+        예측기 초기화
+        Args:
+            model_path: 학습된 XGBoost 모델의 경로
+        """
+        self.model = joblib.load(model_path)
+        self.config = MLConfig()
+        # 고장 유형 매핑 정의
         self.failure_types = {
-            0: '정상',
-            1: '공구 마모 실패',
-            2: '열 발산 실패',
-            3: '전력 고장',
-            4: '제품 과변형'
+            0: 'none',    # 정상 상태
+            1: 'TWF',     # Tool Wear Failure (공구 마모 고장)
+            2: 'HDF',     # Heat Dissipation Failure (열 발산 고장)
+            3: 'PWF',     # Power Failure (전력 고장)
+            4: 'OSF'      # Overstrain Failure (과부하 고장)
         }
 
     def validate_input(self, input_data):
-        """입력 데이터 검증"""
-        for feature, value in input_data.items():
-            if feature in self.feature_config['features']:
-                feature_range = self.feature_config['features'][feature]
-                if value < feature_range['min'] or value > feature_range['max']:
-                    raise ValueError(
-                        f"{feature}의 값이 허용 범위를 벗어났습니다. "
-                        f"(허용 범위: {feature_range['min']} ~ {feature_range['max']})"
-                    )
+        """
+        입력 데이터 유효성 검사
+        Args:
+            input_data: 검사할 입력 데이터 딕셔너리
+        Raises:
+            ValueError: 유효하지 않은 입력값 발견 시
+        """
+        for feature, config in self.config.FEATURE_CONFIG['features'].items():
+            if feature not in input_data:
+                raise ValueError(f"Missing required feature: {feature}")
+            
+            value = input_data[feature]
+            if feature == 'type':
+                if value not in config['options']:
+                    raise ValueError(f"Invalid type value. Must be one of {config['options']}")
+            else:
+                try:
+                    value = float(value)
+                    if value < config['min'] or value > config['max']:
+                        raise ValueError(
+                            f"Value for {feature} must be between "
+                            f"{config['min']} and {config['max']} {config['unit']}"
+                        )
+                except ValueError:
+                    raise ValueError(f"Invalid value for {feature}")
 
     def predict(self, input_data):
-        """예측 수행"""
-        try:
-            # 입력 데이터 검증
-            self.validate_input(input_data)
+        """
+        입력 데이터를 기반으로 고장 예측 수행
+        Args:
+            input_data: 예측을 위한 입력 데이터 딕셔너리
+        Returns:
+            prediction_result: 예측 결과를 포함한 딕셔너리
+        """
+        # 입력 데이터 검증
+        self.validate_input(input_data)
+        
+        # 파생 특성 계산
+        derived_features = self.config.calculate_derived_features(input_data)
+        
+        # 특성 벡터 생성
+        features = np.array([
+            derived_features[feature_name] 
+            for feature_name in self.config.FEATURE_NAMES
+        ]).reshape(1, -1)
+        
+        # 예측 수행
+        prediction_idx = self.model.predict(features)[0]
+        probabilities = self.model.predict_proba(features)[0]
+        
+        # 예측 결과를 문자열로 변환
+        prediction = self.failure_types[prediction_idx]
+        
+        # 응답 준비
+        response = {
+            'prediction': prediction,
+            'failure_type': prediction,
+            'probabilities': {
+                self.failure_types[i]: float(prob)
+                for i, prob in enumerate(probabilities)
+            },
+            'input_parameters': input_data,
+            'derived_features': derived_features
+        }
+        
+        # 컴포넌트 상태 추가
+        response['component_status'] = self.get_component_status(prediction)
+        
+        return response
+
+    def get_component_status(self, failure_type):
+        """
+        예측된 고장 유형에 따른 컴포넌트 상태 반환
+        Args:
+            failure_type: 예측된 고장 유형
+        Returns:
+            component_status: 각 컴포넌트의 상태를 포함한 딕셔너리
+        """
+        component_status = {
+            'tool': 'normal',
+            'cooling_system': 'normal',
+            'power_system': 'normal',
+            'mechanical_system': 'normal'
+        }
+        
+        if failure_type == 'TWF':
+            component_status['tool'] = 'error'
+        elif failure_type == 'HDF':
+            component_status['cooling_system'] = 'error'
+        elif failure_type == 'PWF':
+            component_status['power_system'] = 'error'
+        elif failure_type == 'OSF':
+            component_status['mechanical_system'] = 'error'
             
-            # 입력 데이터 변환
-            features = pd.DataFrame([input_data])
-            logger.info("처리된 입력 데이터: %s", features)
-            
-            # 예측 수행
-            prediction = self.model.predict(features)[0]
-            probabilities = self.model.predict_proba(features)[0]
-            
-            result = {
-                'status': 'success',
-                'prediction': self.failure_types[prediction],
-                'predicted_class': int(prediction),
-                'probabilities': {
-                    self.failure_types[i]: float(prob)
-                    for i, prob in enumerate(probabilities)
-                }
-            }
-            logger.info("예측 결과: %s", result)
-            return result
-            
-        except Exception as e:
-            logger.error("예측 중 오류 발생: %s", str(e))
-            raise 
+        return component_status 

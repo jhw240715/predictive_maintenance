@@ -6,7 +6,9 @@ import os
 from django.conf import settings
 import logging
 import traceback
-from .ml.predictor import FailurePredictor
+from .ml.predictor import MillingMachinePredictor
+from .ml.config import MLConfig
+from pathlib import Path
 
 # 로거 설정
 logger = logging.getLogger(__name__)
@@ -20,12 +22,13 @@ def handle_error(error, error_type="일반 오류"):
         'message': f'{error_type}가 발생했습니다: {str(error)}'
     })
 
-# 모델 인스턴스 생성
+# XGBoost 모델 인스턴스 생성
 try:
-    predictor = FailurePredictor()
-    logger.info("RandomForest 모델 로드 성공!")
+    model_path = Path(settings.BASE_DIR) / 'maintenance' / 'ml' / 'models' / 'xgboost_model.joblib'
+    predictor = MillingMachinePredictor(model_path)
+    logger.info("XGBoost 모델 로드 성공!")
 except Exception as e:
-    logger.error(f"RandomForest 모델 로드 실패: {str(e)}")
+    logger.error(f"XGBoost 모델 로드 실패: {str(e)}")
     predictor = None
 
 def index(request):
@@ -36,7 +39,7 @@ def logistic_regression(request):
     # csv 파일 경로 설정
     csv_path = os.path.join(
         settings.BASE_DIR,
-        'maintenance/ml/reports/logistic_classification_report.csv'
+        'maintenance/ml/reports/classification_report_logistic.csv'
     )
 
     # csv 파일 읽기
@@ -51,7 +54,7 @@ def logistic_regression(request):
                 'f1_score': float(row['f1_score'])*100,
             })
 
-    accuracy = 94.81
+    accuracy = 87.50
     context = {
         'selected_model': 'logistic',
         'report_data': metrics,
@@ -67,7 +70,7 @@ def knn_model(request):
     # csv 파일 경로 설정
     csv_path = os.path.join(
         settings.BASE_DIR,
-        'maintenance/ml/reports/knn_classification_report.csv'
+        'maintenance/ml/reports/classification_report_knn.csv'
     )
 
     # csv 파일 읽기
@@ -82,7 +85,7 @@ def knn_model(request):
                 'f1_score': float(row['f1_score']) * 100,
             })
 
-    accuracy = 98.56
+    accuracy = 93.78
     context = {
         'selected_model': 'knn',
         'report_data': metrics,
@@ -98,7 +101,7 @@ def svm_model(request):
     # csv 파일 경로 설정
     csv_path = os.path.join(
         settings.BASE_DIR,
-        'maintenance/ml/reports/svm_classification_report.csv'
+        'maintenance/ml/reports/classification_report_svm.csv'
     )
 
     # csv 파일 읽기
@@ -113,7 +116,7 @@ def svm_model(request):
                 'f1_score': float(row['f1_score']) * 100,
             })
 
-    accuracy = 99.16
+    accuracy = 96.46
     context = {
         'selected_model': 'svm',
         'report_data': metrics,
@@ -129,7 +132,7 @@ def decision_tree(request):
     # csv 파일 경로 설정
     csv_path = os.path.join(
         settings.BASE_DIR,
-        'maintenance/ml/reports/dtc_classification_report.csv'
+        'maintenance/ml/reports/classification_report_dtc.csv'
     )
 
     # csv 파일 읽기
@@ -144,13 +147,13 @@ def decision_tree(request):
                 'f1_score': float(row['f1_score']) * 100,
             })
 
-    accuracy = 99.42
+    accuracy = 97.56
     context = {
         'selected_model': 'decision_tree',
         'report_data': metrics,
         'accuracy': accuracy,
         'graph_file': 'images/graphs/roc_curve_decision_tree.html',
-        'matrix_file': 'images/confusion_matrix/confusion_matrix_decision_tree.html',
+        'matrix_file': 'images/confusion_matrix/confusion_matrix_dtc.html',
         'explanation': '의사결정나무 모델의 성능 분석 결과입니다.'
     }
 
@@ -160,7 +163,7 @@ def random_forest(request):
     # csv 파일 경로 설정
     csv_path = os.path.join(
         settings.BASE_DIR,
-        'maintenance/ml/reports/rfc_classification_report.csv'
+        'maintenance/ml/reports/classification_report_rfc.csv'
     )
 
     # csv 파일 읽기
@@ -175,13 +178,13 @@ def random_forest(request):
                 'f1_score': float(row['f1_score']) * 100,
             })
 
-    accuracy = 99.57
+    accuracy = 97.59
     context = {
         'selected_model': 'random_forest',
         'report_data': metrics,
         'accuracy': accuracy,
         'graph_file': 'images/graphs/roc_curve_random_forest.html',
-        'matrix_file': 'images/confusion_matrix/confusion_matrix_random_forest.html',
+        'matrix_file': 'images/confusion_matrix/confusion_matrix_rfc.html',
         'explanation': '랜덤 포레스트 모델의 성능 분석 결과입니다.'
     }
 
@@ -191,7 +194,7 @@ def xgboost(request):
     # csv 파일 경로 설정
     csv_path = os.path.join(
         settings.BASE_DIR,
-        'maintenance/ml/reports/xgb_classification_report.csv'
+        'maintenance/ml/reports/classification_report_xgb.csv'
     )
 
     # csv 파일 읽기
@@ -206,13 +209,13 @@ def xgboost(request):
                 'f1_score': float(row['f1_score']) * 100,
             })
 
-    accuracy = 99.52
+    accuracy = 97.46
     context = {
         'selected_model': 'xgboost',
         'report_data': metrics,
         'accuracy': accuracy,
         'graph_file': 'images/graphs/roc_curve_xgboost.html',
-        'matrix_file': 'images/confusion_matrix/confusion_matrix_xgboost.html',
+        'matrix_file': 'images/confusion_matrix/confusion_matrix_xgb.html',
         'explanation': 'XGBoost 모델의 성능 분석 결과입니다.'
     }
 
@@ -222,7 +225,7 @@ def simulator(request):
     """시뮬레이터 메인 페이지"""
     context = {}
     if predictor:
-        context['feature_ranges'] = predictor.feature_config['features']
+        context['feature_ranges'] = MLConfig.FEATURE_CONFIG['features']
     return render(request, 'simulator.html', context)
 
 def predict_failure(request):
@@ -244,9 +247,12 @@ def predict_failure(request):
         
         # POST 데이터 유효성 검사
         required_fields = [
-            'Rotational_Speed', 'Torque', 'Tool_Wear',
-            'Type_encoded', 'Temperature_difference',
-            'Power', 'Wear_degree'
+            'type',
+            'Air_Temperature',
+            'Process_Temperature',
+            'Rotational_Speed',
+            'Torque',
+            'Tool_Wear'
         ]
         
         for field in required_fields:
@@ -255,24 +261,16 @@ def predict_failure(request):
         
         # 입력 데이터 준비
         try:
-            # 모델이 학습할 때 사용한 정확한 feature 이름으로 매핑
             input_data = {
-                'Rotational speed [rpm]': float(request.POST.get('Rotational_Speed')),
-                'Torque [Nm]': float(request.POST.get('Torque')),
-                'Tool wear [min]': float(request.POST.get('Tool_Wear')),
-                'Type_encoded': int(request.POST.get('Type_encoded')),
-                'Temperature difference [K]': float(request.POST.get('Temperature_difference')),
-                'Power [W]': float(request.POST.get('Power')),
-                'Wear degree [min*Nm]': float(request.POST.get('Wear_degree'))
+                'type': request.POST.get('type'),
+                'Air_Temperature': float(request.POST.get('Air_Temperature')),
+                'Process_Temperature': float(request.POST.get('Process_Temperature')),
+                'Rotational_Speed': float(request.POST.get('Rotational_Speed')),
+                'Torque': float(request.POST.get('Torque')),
+                'Tool_Wear': float(request.POST.get('Tool_Wear'))
             }
             
             logger.info("변환된 입력 데이터: %s", input_data)
-            
-            # 모델의 feature 이름 확인 및 로깅
-            if hasattr(predictor.model, 'feature_names_in_'):
-                logger.info("모델의 feature 이름:")
-                for name in predictor.model.feature_names_in_:
-                    logger.info(f"- {name}")
             
             # 예측 수행
             result = predictor.predict(input_data)

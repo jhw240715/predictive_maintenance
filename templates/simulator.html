@@ -120,8 +120,11 @@
                             </div>
                             <div class="slider-track normal">
                                 <input type="range" name="Tool_Wear" 
-                                       min="0" max="253" step="1" 
+                                       min="0" max="200" step="1" 
                                        value="0">
+                            </div>
+                            <div class="warning-text" style="color: #ff6b6b; font-size: 0.9em; margin-top: 5px;">
+                                ※ 200을 초과해서는 안 됩니다. 작업 시 유의해주시기 바랍니다.
                             </div>
                         </div>
 
@@ -137,23 +140,21 @@
                 </div>
                 <div class="card-body">
                     <div id="prediction-result" class="hidden">
-                        <div class="result-text">
-                            <p>예측된 상태: <span id="prediction-text"></span></p>
-                            <p>신뢰도: <span id="prediction-probability"></span></p>
-                            <div class="failure-description">
-                                <p>고장 유형 설명:</p>
-                                <ul>
-                                    <li class="status-normal">0: 정상 (Normal)</li>
-                                    <li class="status-twf">1: 공구 마모 실패 (Tool Wear Failure)</li>
-                                    <li class="status-hdf">2: 열 발산 실패 (Heat Dissipation Failure)</li>
-                                    <li class="status-pwf">3: 전력 고장 (Power Failure)</li>
-                                    <li class="status-osf">4: 제품 과변형 (Overstrain Failure)</li>
-                                </ul>
+                        <dl class="result-text grid gap-4">
+                            <!-- 고장 유형 -->
+                            <div class="status-item">
+                                <dt class="text-gray-600">고장 유형:</dt>
+                                <dd id="failure-type" class="status-value font-semibold"></dd>
                             </div>
+                        </dl>
+
+                        <!-- 고장 설명 -->
+                        <div class="failure-description mt-4 p-4 bg-gray-50 rounded-lg">
+                            <p id="failure-explanation" class="text-gray-700"></p>
                         </div>
-                        <div class="result-timestamp">
-                            <span id="prediction-timestamp"></span>
-                        </div>
+
+                        <!-- 타임스탬프 -->
+                        <time id="prediction-timestamp" class="result-timestamp block mt-4 text-sm text-gray-500"></time>
                     </div>
                 </div>
             </div>
