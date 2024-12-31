@@ -59,7 +59,7 @@ def logistic_regression(request):
         'selected_model': 'logistic',
         'report_data': metrics,
         'accuracy': accuracy,
-        'graph_file': 'images/graphs/roc_curve_logistic.html',
+        'graph_file': 'images/graphs/roc_curve_logistic_2.html',
         'matrix_file': 'images/confusion_matrix/confusion_matrix_logistic.html',
         'explanation': '로지스틱 회귀 모델의 성능 분석 결과입니다.'
     }
@@ -90,7 +90,7 @@ def knn_model(request):
         'selected_model': 'knn',
         'report_data': metrics,
         'accuracy': accuracy,
-        'graph_file': 'images/graphs/roc_curve_knn.html',
+        'graph_file': 'images/graphs/roc_curve_knn_2.html',
         'matrix_file': 'images/confusion_matrix/confusion_matrix_knn.html',
         'explanation': 'k-최근접 이웃 알고리즘 모델의 성능 분석 결과입니다.'
     }
@@ -121,7 +121,7 @@ def svm_model(request):
         'selected_model': 'svm',
         'report_data': metrics,
         'accuracy': accuracy,
-        'graph_file': 'images/graphs/roc_curve_svm.html',
+        'graph_file': 'images/graphs/roc_curve_svm_2.html',
         'matrix_file': 'images/confusion_matrix/confusion_matrix_svm.html',
         'explanation': '서포트 벡터 머신 모델의 성능 분석 결과입니다.'
     }
@@ -152,7 +152,7 @@ def decision_tree(request):
         'selected_model': 'decision_tree',
         'report_data': metrics,
         'accuracy': accuracy,
-        'graph_file': 'images/graphs/roc_curve_decision_tree.html',
+        'graph_file': 'images/graphs/roc_curve_decision_tree_2.html',
         'matrix_file': 'images/confusion_matrix/confusion_matrix_dtc.html',
         'explanation': '의사결정나무 모델의 성능 분석 결과입니다.'
     }
@@ -183,7 +183,7 @@ def random_forest(request):
         'selected_model': 'random_forest',
         'report_data': metrics,
         'accuracy': accuracy,
-        'graph_file': 'images/graphs/roc_curve_random_forest.html',
+        'graph_file': 'images/graphs/roc_curve_random_forest_2.html',
         'matrix_file': 'images/confusion_matrix/confusion_matrix_rfc.html',
         'explanation': '랜덤 포레스트 모델의 성능 분석 결과입니다.'
     }
@@ -214,7 +214,7 @@ def xgboost(request):
         'selected_model': 'xgboost',
         'report_data': metrics,
         'accuracy': accuracy,
-        'graph_file': 'images/graphs/roc_curve_xgboost.html',
+        'graph_file': 'images/graphs/roc_curve_xgboost_2.html',
         'matrix_file': 'images/confusion_matrix/confusion_matrix_xgb.html',
         'explanation': 'XGBoost 모델의 성능 분석 결과입니다.'
     }
