@@ -108,7 +108,7 @@ export class MillingMachineVisualization {
     initCamera() {
         const aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 1000);
-        this.camera.position.set(40, 35, 40);
+        this.camera.position.set(40, 50, 50); 
         this.camera.lookAt(0, 5, 0);
     }
 
@@ -161,7 +161,7 @@ export class MillingMachineVisualization {
         this.controls.dampingFactor = 0.05;
         this.controls.screenSpacePanning = false;
         this.controls.minDistance = 30;
-        this.controls.maxDistance = 60;
+        this.controls.maxDistance = 150;
         this.controls.maxPolarAngle = Math.PI / 2;
     }
 
@@ -213,18 +213,19 @@ export class MillingMachineVisualization {
         // 머신 씬에 추가
         this.scene.add(this.machine);
 
-        // 고장 부위 메시 참조 설정
-        this.failureParts = {
-            toolWear: this.scene.getObjectByName('tool_part'),
-            heatDissipation: this.scene.getObjectByName('heat_part'),
-            powerFailure: this.scene.getObjectByName('power_part'),
-            overstrain: this.scene.getObjectByName('strain_part')
+        // 고장 부위 메시 참조 설정 및 기본 재질 저장
+        const parts = {
+            'tool_part': this.materials.lightMetal,
+            'heat_part': this.materials.darkMetal,
+            'power_part': this.materials.darkMetal,
+            'strain_part': this.materials.mainBody
         };
 
-        // 기본 재질 저장
-        Object.entries(this.failureParts).forEach(([key, mesh]) => {
-            if (mesh) {
-                this.defaultMaterials[key] = mesh.material.clone();
+        // 각 부위의 기본 재질 저장
+        Object.entries(parts).forEach(([partName, defaultMaterial]) => {
+            const part = this.scene.getObjectByName(partName);
+            if (part) {
+                this.defaultMaterials[partName] = defaultMaterial.clone();
             }
         });
     }
@@ -266,15 +267,14 @@ export class MillingMachineVisualization {
         panel.position.set(1.65, 7, 0);
         panelGroup.add(panel);
 
-        // 전원 패널 섹션
-        const powerPanelGeometry = new THREE.BoxGeometry(0.1, 1.5, 1);
+        // 전원 패널 섹션 (전력 고장 부위)
+        const powerPanelGeometry = new THREE.BoxGeometry(1.2, 2.5, 2);
         const powerPanel = new THREE.Mesh(powerPanelGeometry, new THREE.MeshPhysicalMaterial({
             color: 0x2c3e50,
             metalness: 0.7,
             roughness: 0.3
         }));
-        powerPanel.position.set(1.75, 7, 0);
-        powerPanel.name = 'power_part';
+        powerPanel.position.set(1.65, 7, 0);
         panelGroup.add(powerPanel);
 
         // 작동 버튼 (녹색)
@@ -376,18 +376,8 @@ export class MillingMachineVisualization {
         const panelGeometry = new THREE.BoxGeometry(0.8, 2, 1.5);
         const panel = new THREE.Mesh(panelGeometry, this.materials.darkMetal);
         panel.position.set(-1.65, 7, 0);
+        panel.name = 'power_part';
         columnGroup.add(panel);
-
-        // 전원 패널 섹션
-        const powerPanelGeometry = new THREE.BoxGeometry(0.1, 1.5, 1);
-        const powerPanel = new THREE.Mesh(powerPanelGeometry, new THREE.MeshPhysicalMaterial({
-            color: 0x2c3e50,
-            metalness: 0.7,
-            roughness: 0.3
-        }));
-        powerPanel.position.set(-1.75, 7, 0);
-        powerPanel.name = 'power_part';
-        columnGroup.add(powerPanel);
 
         // 작동 버튼 (녹색)
         const startButtonGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 32);
@@ -646,6 +636,42 @@ export class MillingMachineVisualization {
         });
     }
 
+    highlightPart(partName, color) {
+        if (!this.scene) return;
+        
+        // 이전 하이라이트 효과 제거
+        this.resetAllParts();
+        
+        // 해당 부품 찾기
+        let targetPart = null;
+        this.scene.traverse((object) => {
+            if (object.name === partName) {
+                targetPart = object;
+            }
+        });
+        
+        if (targetPart) {
+            // 원래 재질 저장
+            if (!targetPart.userData.originalMaterial) {
+                targetPart.userData.originalMaterial = targetPart.material.clone();
+            }
+            
+            // 새로운 재질 적용
+            const highlightMaterial = new THREE.MeshPhysicalMaterial({
+                color: color,
+                emissive: color,
+                emissiveIntensity: 1.0,
+                metalness: 0.5,
+                roughness: 0.2,
+                transparent: true,
+                opacity: 1.0
+            });
+            
+            targetPart.material = highlightMaterial;
+            this.currentFailurePart = targetPart;
+        }
+    }
+
     // 카메라 포커스 메서드
     focusOnPart(part) {
         if (!part) return;
@@ -655,7 +681,7 @@ export class MillingMachineVisualization {
         const size = box.getSize(new THREE.Vector3());
         const maxDim = Math.max(size.x, size.y, size.z);
         const fov = this.camera.fov * (Math.PI / 180);
-        const distance = maxDim / (2 * Math.tan(fov / 2));
+        const distance = maxDim / (2 * Math.tan(fov / 2)) * 3;
 
         // 부드러운 카메라 이동
         const duration = 1000;
@@ -678,7 +704,7 @@ export class MillingMachineVisualization {
     resetCamera() {
         const duration = 1000;
         const startPosition = this.camera.position.clone();
-        const endPosition = new THREE.Vector3(40, 35, 40);
+        const endPosition = new THREE.Vector3(80, 70, 80);
 
         const start = Date.now();
         const animate = () => {
@@ -694,37 +720,47 @@ export class MillingMachineVisualization {
 
     // 기계 상태 업데이트 함수
     updateMachineState(predictionClass) {
-        // 유효성 검사
-        if (predictionClass === undefined || predictionClass === null) {
-            console.warn('유효하지 않은 데이터 형식');
-            return;
-        }
+        console.log('상태 업데이트:', predictionClass); // 디버깅용 로그
 
-        const stateClass = parseInt(predictionClass);
-        if (isNaN(stateClass) || stateClass < 0 || stateClass > 4) {
-            console.warn('유효하지 않은 예측 클래스:', stateClass);
-            return;
-        }
+        // 이전 상태 초기화
+        this.resetAllParts();
+        this.currentFailurePart = null;  // 현재 고장 부위 참조 초기화
 
         // 상태에 따른 부품 하이라이트
-        switch (stateClass) {
+        switch (predictionClass) {
             case 0: // 정상
                 this.resetAllParts();
                 break;
             case 1: // 공구 마모 실패
-                this.highlightPart('tool', 0xff0000);
+                const toolPart = this.scene.getObjectByName('tool_part');
+                console.log('공구 마모 부위:', toolPart);
+                if (toolPart) {
+                    this.highlightPart('tool_part', 0xff0000);
+                }
                 break;
             case 2: // 열 발산 실패
-                this.highlightPart('heatsink', 0xff0000);
+                const heatPart = this.scene.getObjectByName('heat_part');
+                console.log('열 발산 부위:', heatPart);
+                if (heatPart) {
+                    this.highlightPart('heat_part', 0xff0000);
+                }
                 break;
             case 3: // 전력 고장
-                this.highlightPart('power', 0xff0000);
+                const powerPart = this.scene.getObjectByName('power_part');
+                console.log('전력 고장 부위:', powerPart);
+                if (powerPart) {
+                    this.highlightPart('power_part', 0xff0000);
+                }
                 break;
             case 4: // 제품 과변형
-                this.highlightPart('workpiece', 0xff0000);
+                const strainPart = this.scene.getObjectByName('strain_part');
+                console.log('과변형 부위:', strainPart);
+                if (strainPart) {
+                    this.highlightPart('strain_part', 0xff0000);
+                }
                 break;
             default:
-                console.warn('알 수 없는 상태:', stateClass);
+                console.warn('알 수 없는 상태:', predictionClass);
                 this.resetAllParts();
         }
     }

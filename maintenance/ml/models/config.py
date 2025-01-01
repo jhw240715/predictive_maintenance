@@ -6,31 +6,31 @@ class MLConfig:
                 'options': ['L', 'M', 'H'],
                 'default': 'L'
             },
-            'Air_Temperature': {
+            'air_temperature': {
                 'min': 295.3,
                 'max': 304.5,
                 'unit': 'K',
                 'default': 295.3
             },
-            'Process_Temperature': {
+            'process_temperature': {
                 'min': 305.7,
                 'max': 313.8,
                 'unit': 'K',
                 'default': 305.7
             },
-            'Rotational_Speed': {
+            'rotational_speed': {
                 'min': 1168,
                 'max': 2886,
                 'unit': 'rpm',
                 'default': 1168
             },
-            'Torque': {
+            'torque': {
                 'min': 3.8,
                 'max': 76.6,
                 'unit': 'Nm',
                 'default': 3.8
             },
-            'Tool_Wear': {
+            'tool_wear': {
                 'min': 0,
                 'max': 200,
                 'unit': 'min',
@@ -47,12 +47,6 @@ class MLConfig:
             'en': 'Normal Operation',
             'kr': '정상 작동',
             'description': '모든 파라미터가 정상 범위 내에서 작동 중입니다.'
-        },
-        'TWF': {
-            'code': 'TWF',
-            'en': 'Tool Wear Failure',
-            'kr': '공구 마모 고장',
-            'description': '공구의 마모가 심각한 수준입니다. 즉시 공구를 교체하고 가공 품질을 확인하세요.'
         },
         'HDF': {
             'code': 'HDF',
@@ -71,12 +65,6 @@ class MLConfig:
             'en': 'Overstrain Failure',
             'kr': '과부하 고장',
             'description': '기계에 과도한 부하가 걸려있습니다. 작업 강도를 낮추고 기계 상태를 점검하세요.'
-        },
-        'RNF': {
-            'code': 'RNF',
-            'en': 'Random Failure',
-            'kr': '무작위 고장',
-            'description': '예상치 못한 고장이 발생했습니다. 전체적인 시스템 점검이 필요합니다.'
         }
     }
 
@@ -87,11 +75,11 @@ class MLConfig:
         type_encoded_map = {'L': 0, 'M': 1, 'H': 2}
         type_encoded = type_encoded_map.get(input_data.get('type', 'L'), 0)
         
-        rotational_speed = float(input_data.get('Rotational_Speed'))
-        tool_wear = float(input_data.get('Tool_Wear'))
-        torque = float(input_data.get('Torque'))
-        process_temp = float(input_data.get('Process_Temperature'))
-        air_temp = float(input_data.get('Air_Temperature'))
+        rotational_speed = float(input_data.get('rotational_speed'))
+        tool_wear = float(input_data.get('tool_wear'))
+        torque = float(input_data.get('torque'))
+        process_temp = float(input_data.get('process_temperature'))
+        air_temp = float(input_data.get('air_temperature'))
         
         # Calculate derived features
         temp_difference = process_temp - air_temp
@@ -106,6 +94,7 @@ class MLConfig:
             'power': power,
             'wear_degree': wear_degree
         }
+
     # Feature names for the model
     FEATURE_NAMES = [
         'type_encoded',

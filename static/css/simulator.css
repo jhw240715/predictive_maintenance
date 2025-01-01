@@ -822,25 +822,47 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* 예측 결과 디스플레이 스타일 */
 #prediction-display {
-    padding: 0.75rem;
-    border-radius: 0.375rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
     font-weight: 600;
     text-align: center;
-    color: white;
-    /* 모든 텍스트는 흰색으로 */
+    margin-top: 1rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
 }
 
 /* 정상 상태 - 초록색 */
 #prediction-display.normal {
-    background-color: #10B981;
-    /* 초록색 */
+    background-color: #22c55e;
+    color: white;
 }
 
-/* 모든 고장 상태 - 빨간색 */
-#prediction-display.tool-wear,
-#prediction-display.heat-failure,
-#prediction-display.power-failure,
+/* 공구 마모 실패 - 빨간색 */
+#prediction-display.tool-wear {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* 열 발산 실패 - 주황색 */
+#prediction-display.heat-failure {
+    background-color: #f97316;
+    color: white;
+}
+
+/* 전력 고장 - 노란색 */
+#prediction-display.power-failure {
+    background-color: #eab308;
+    color: white;
+}
+
+/* 제품 과변형 - 보라색 */
 #prediction-display.overstrain {
-    background-color: #EF4444;
-    /* 빨간색 */
+    background-color: #8b5cf6;
+    color: white;
+}
+
+/* 에러 상태 - 회색 */
+#prediction-display.error {
+    background-color: #6b7280;
+    color: white;
 }

@@ -1,118 +1,148 @@
-import numpy as np
 import joblib
-from .config import MLConfig
+import numpy as np
+import pandas as pd
+from .models.config import MLConfig
 
 class MillingMachinePredictor:
-    def __init__(self, model_path):
-        """
-        예측기 초기화
-        Args:
-            model_path: 학습된 XGBoost 모델의 경로
-        """
-        self.model = joblib.load(model_path)
-        self.config = MLConfig()
-        # 고장 유형 매핑 정의
-        self.failure_types = {
-            0: 'none',    # 정상 상태
-            1: 'TWF',     # Tool Wear Failure (공구 마모 고장)
-            2: 'HDF',     # Heat Dissipation Failure (열 발산 고장)
-            3: 'PWF',     # Power Failure (전력 고장)
-            4: 'OSF'      # Overstrain Failure (과부하 고장)
-        }
+    """밀링 머신의 고장을 예측하는 클래스입니다.
+    이 클래스는 실시간으로 측정되는 작동 파라미터를 기반으로 잠재적인 고장을 예측합니다."""
 
-    def validate_input(self, input_data):
+    def __init__(self, model_path):
+        """예측기를 초기화합니다. 모델 파일을 로드하고 필요한 상수들을 정의합니다."""
+        self.model = joblib.load(model_path)
+        self.config = MLConfig
+        
+        # 온도차 제약조건을 정의합니다
+        self.TEMP_DIFF_MIN = 7.6
+        self.TEMP_DIFF_MAX = 12.1
+        
+        # 각 고장 유형별 임계값을 정의합니다
+        self.FAILURE_THRESHOLDS = {
+            'HDF': 11.0,    # 열 발산 고장: 온도차 11.0K 이상
+            'PWF': 20000,   # 전력 고장: 20kW 이상 (임계값 조정)
+            'OSF': 180      # 과변형 고장: 공구 마모 180분 이상
+        }
+        
+        # 모델 입력에 필요한 특성들의 순서를 정의합니다
+        self.REQUIRED_FEATURES = [
+            'Type_encoded',
+            'Rotational speed [rpm]',
+            'Tool wear [min]',
+            'Temperature difference [K]',
+            'Power [W]',
+            'Wear degree [min*Nm]'
+        ]
+
+    def calculate_power(self, speed, torque):
+        """회전 속도와 토크로부터 전력을 계산합니다.
+        전력(W) = 2π × 회전속도(rps) × 토크(Nm)"""
+        return 2 * np.pi * (speed / 60) * torque
+
+    def check_failure_type(self, temp_diff, power, tool_wear):
+        """현재 상태가 어떤 고장 조건에 해당하는지 확인합니다.
+        
+        고장 우선순위:
+        1. 전력 고장 (PWF) - 가장 심각한 문제
+        2. 과변형 고장 (OSF) - 공구 교체 필요
+        3. 열 발산 고장 (HDF) - 냉각 시스템 문제
         """
-        입력 데이터 유효성 검사
-        Args:
-            input_data: 검사할 입력 데이터 딕셔너리
-        Raises:
-            ValueError: 유효하지 않은 입력값 발견 시
-        """
-        for feature, config in self.config.FEATURE_CONFIG['features'].items():
-            if feature not in input_data:
-                raise ValueError(f"Missing required feature: {feature}")
+        if power >= self.FAILURE_THRESHOLDS['PWF']:
+            return 'PWF'  # 전력이 임계값을 초과하면 전력 고장
+        elif tool_wear >= self.FAILURE_THRESHOLDS['OSF']:
+            return 'OSF'  # 공구 마모가 임계값을 초과하면 과변형 고장
+        elif temp_diff >= self.FAILURE_THRESHOLDS['HDF']:
+            return 'HDF'  # 온도차가 임계값을 초과하면 열 발산 고장
+        return 'none'     # 모든 값이 정상 범위 내에 있음
+
+    def preprocess_input(self, input_data):
+        """입력 데이터를 전처리하여 모델이 예측할 수 있는 형태로 변환합니다."""
+        try:
+            print("입력 데이터:", input_data)
             
-            value = input_data[feature]
-            if feature == 'type':
-                if value not in config['options']:
-                    raise ValueError(f"Invalid type value. Must be one of {config['options']}")
-            else:
-                try:
-                    value = float(value)
-                    if value < config['min'] or value > config['max']:
-                        raise ValueError(
-                            f"Value for {feature} must be between "
-                            f"{config['min']} and {config['max']} {config['unit']}"
-                        )
-                except ValueError:
-                    raise ValueError(f"Invalid value for {feature}")
+            # 기본 특성들을 추출하고 숫자로 변환합니다
+            air_temp = float(input_data['Air_Temperature'])
+            process_temp = float(input_data['Process_Temperature'])
+            rotational_speed = float(input_data['Rotational_Speed'])
+            torque = float(input_data['Torque'])
+            tool_wear = float(input_data['Tool_Wear'])
+            
+            # 온도차를 계산하고 검증합니다
+            temp_diff = process_temp - air_temp
+            if temp_diff <= 0:
+                raise ValueError("공정 온도는 반드시 공기 온도보다 높아야 합니다")
+            if not (self.TEMP_DIFF_MIN <= temp_diff <= self.TEMP_DIFF_MAX):
+                raise ValueError(f"온도차는 {self.TEMP_DIFF_MIN}K에서 {self.TEMP_DIFF_MAX}K 사이여야 합니다")
+            
+            # 파생 특성들을 계산합니다
+            power = self.calculate_power(rotational_speed, torque)
+            wear_degree = tool_wear * torque
+            
+            # 데이터프레임을 생성하고 스케일링을 적용합니다
+            scaled_data = {
+                'Type_encoded': 0 if input_data['type'] == 'L' else 1 if input_data['type'] == 'M' else 2,
+                'Rotational speed [rpm]': (rotational_speed - 1168) / (2886 - 1168),
+                'Tool wear [min]': tool_wear / 200,
+                'Temperature difference [K]': (temp_diff - self.TEMP_DIFF_MIN) / (self.TEMP_DIFF_MAX - self.TEMP_DIFF_MIN),
+                'Power [W]': power / self.calculate_power(2886, 76.6),
+                'Wear degree [min*Nm]': wear_degree / (200 * 76.6)
+            }
+            
+            # 특성 순서를 맞춰 데이터프레임을 생성합니다
+            df = pd.DataFrame([scaled_data])
+            df = df[self.REQUIRED_FEATURES]
+            
+            print("전처리된 데이터:", df)
+            return df
+
+        except Exception as e:
+            print(f"전처리 중 오류 발생: {str(e)}")
+            raise
 
     def predict(self, input_data):
-        """
-        입력 데이터를 기반으로 고장 예측 수행
-        Args:
-            input_data: 예측을 위한 입력 데이터 딕셔너리
-        Returns:
-            prediction_result: 예측 결과를 포함한 딕셔너리
-        """
-        # 입력 데이터 검증
-        self.validate_input(input_data)
-        
-        # 파생 특성 계산
-        derived_features = self.config.calculate_derived_features(input_data)
-        
-        # 특성 벡터 생성
-        features = np.array([
-            derived_features[feature_name] 
-            for feature_name in self.config.FEATURE_NAMES
-        ]).reshape(1, -1)
-        
-        # 예측 수행
-        prediction_idx = self.model.predict(features)[0]
-        probabilities = self.model.predict_proba(features)[0]
-        
-        # 예측 결과를 문자열로 변환
-        prediction = self.failure_types[prediction_idx]
-        
-        # 응답 준비
-        response = {
-            'prediction': prediction,
-            'failure_type': prediction,
-            'probabilities': {
-                self.failure_types[i]: float(prob)
-                for i, prob in enumerate(probabilities)
-            },
-            'input_parameters': input_data,
-            'derived_features': derived_features
-        }
-        
-        # 컴포넌트 상태 추가
-        response['component_status'] = self.get_component_status(prediction)
-        
-        return response
-
-    def get_component_status(self, failure_type):
-        """
-        예측된 고장 유형에 따른 컴포넌트 상태 반환
-        Args:
-            failure_type: 예측된 고장 유형
-        Returns:
-            component_status: 각 컴포넌트의 상태를 포함한 딕셔너리
-        """
-        component_status = {
-            'tool': 'normal',
-            'cooling_system': 'normal',
-            'power_system': 'normal',
-            'mechanical_system': 'normal'
-        }
-        
-        if failure_type == 'TWF':
-            component_status['tool'] = 'error'
-        elif failure_type == 'HDF':
-            component_status['cooling_system'] = 'error'
-        elif failure_type == 'PWF':
-            component_status['power_system'] = 'error'
-        elif failure_type == 'OSF':
-            component_status['mechanical_system'] = 'error'
+        """입력 데이터를 기반으로 고장 유형을 예측합니다."""
+        try:
+            print("예측 시작 - 입력 데이터:", input_data)
             
-        return component_status 
+            # 데이터를 전처리합니다
+            processed_data = self.preprocess_input(input_data)
+            print("전처리된 데이터 shape:", processed_data.shape)
+
+            # 실제 물리값들을 계산합니다
+            temp_diff = float(input_data['Process_Temperature']) - float(input_data['Air_Temperature'])
+            power = self.calculate_power(float(input_data['Rotational_Speed']), float(input_data['Torque']))
+            tool_wear = float(input_data['Tool_Wear'])
+            
+            # 고장 유형을 확인합니다
+            failure_type = self.check_failure_type(temp_diff, power, tool_wear)
+            
+            # 모델의 예측 확률을 구합니다
+            probabilities = self.model.predict_proba(processed_data)[0]
+            
+            print("계산된 값들:")
+            print(f"온도차: {temp_diff:.1f}K")
+            print(f"전력: {power:.1f}W")
+            print(f"공구 마모: {tool_wear}min")
+            print("최종 예측:", failure_type)
+            
+            return {
+                'status': 'success',
+                'prediction': failure_type,
+                'probabilities': {
+                    'none': float(probabilities[0]),
+                    'HDF': float(probabilities[2]),
+                    'PWF': float(probabilities[3]),
+                    'OSF': float(probabilities[4])
+                },
+                'calculated_values': {
+                    'temp_difference': temp_diff,
+                    'power': power,
+                    'tool_wear': tool_wear
+                }
+            }
+
+        except Exception as e:
+            print(f"예측 중 오류 발생: {str(e)}")
+            return {
+                'status': 'error',
+                'message': str(e)
+            }

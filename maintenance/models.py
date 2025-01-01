@@ -1,45 +1,55 @@
 from django.db import models
 
 class SimulatorInput(models.Model):
-    type = models.CharField(max_length=1, choices=[
-        ('L', 'Low'),
-        ('M', 'Medium'),
-        ('H', 'High')
-    ], verbose_name='제품 유형')
-    air_temperature = models.FloatField(verbose_name='공기 온도')
-    process_temperature = models.FloatField(verbose_name='공정 온도')
-    rotational_speed = models.IntegerField(verbose_name='회전 속도')
-    torque = models.FloatField(verbose_name='토크')
-    tool_wear = models.IntegerField(verbose_name='공구 마모')
-
-    class Meta:
-        db_table = 'simulator_input'
-        verbose_name = '시뮬레이터 입력값'
+    """시뮬레이터 입력값을 저장하는 모델"""
+    
+    # 제품 유형 선택을 위한 상수 정의
+    PRODUCT_TYPES = [
+        ('L', 'Low'),      # 저사양 제품
+        ('M', 'Medium'),   # 중사양 제품
+        ('H', 'High')      # 고사양 제품
+    ]
+    
+    # 입력 파라미터 필드들
+    type = models.CharField(
+        max_length=1,
+        choices=PRODUCT_TYPES,
+        default='L'
+    )  # 제품 유형 (L/M/H)
+    
+    air_temperature = models.FloatField()      # 공기 온도 (K)
+    process_temperature = models.FloatField()  # 공정 온도 (K)
+    rotational_speed = models.IntegerField()   # 회전 속도 (rpm)
+    torque = models.FloatField()              # 토크 (Nm)
+    tool_wear = models.IntegerField()         # 공구 마모도 (min)
+    
+    created_at = models.DateTimeField(auto_now_add=True, null=True)  # 데이터 생성 시간
+    
+    def __str__(self):
+        return f"입력 #{self.id} - {self.created_at}"
 
 class SimulatorOutput(models.Model):
+    """시뮬레이터 출력값(예측 결과)을 저장하는 모델"""
+    
+    # 고장 유형 선택을 위한 상수 정의
+    FAILURE_TYPES = [
+        (0, 'No Failure'),  # 정상 상태
+        (2, 'HDF'),         # 열 발산 고장
+        (3, 'PWF'),         # 전력 고장
+        (4, 'OSF')          # 과부하 고장
+    ]
+    
+    # 1:1 관계로 입력값과 연결
     id = models.OneToOneField(
         SimulatorInput,
         on_delete=models.CASCADE,
-        primary_key=True,
-        db_column='id',
-        verbose_name='식별자'
+        primary_key=True
     )
+    
     prediction = models.IntegerField(
-        default=0,
-        choices=[
-            (0, 'No Failure'),
-            (1, 'TWF'),
-            (2, 'HDF'),
-            (3, 'PWF'),
-            (4, 'OSF')
-        ],
-        verbose_name='예측 결과값'
-    )
-    timestamp = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='결과 생성 시간'
-    )
-
-    class Meta:
-        db_table = 'simulator_output'
-        verbose_name = '시뮬레이터 출력값'
+        choices=FAILURE_TYPES,
+        default=0
+    )  # 예측된 고장 유형
+    
+    def __str__(self):
+        return f"출력 #{self.id_id} - {self.get_prediction_display()}"
