@@ -32,7 +32,7 @@ class MLConfig:
             },
             'tool_wear': {
                 'min': 0,
-                'max': 200,
+                'max': 253,
                 'unit': 'min',
                 'default': 0,
                 'warning': '공구 마모도는 200분을 초과하면 안됩니다. 200분 이상 사용 시 심각한 품질 문제가 발생할 수 있습니다.'

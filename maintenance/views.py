@@ -25,11 +25,13 @@ def handle_error(error, error_type="일반 오류"):
 
 # 애플리케이션 시작 시 XGBoost 모델을 메모리에 로드합니다
 try:
-    model_path = Path(settings.BASE_DIR) / 'maintenance' / 'ml' / 'models' / 'xgboost_model.joblib'
-    predictor = MillingMachinePredictor(model_path)
-    logger.info("XGBoost 모델 로드 성공!")
+    model_path = Path(settings.BASE_DIR) / 'maintenance' / 'ml' / 'models' / 'model_xgboost.json'
+    scaler_path = Path(settings.BASE_DIR) / 'maintenance' / 'ml' / 'models' / 'scaler_params.json'
+    predictor = MillingMachinePredictor(model_path, scaler_path)
+    logger.info("XGBoost 모델 로드 및 스케일러 로드 성공!")
+
 except Exception as e:
-    logger.error(f"XGBoost 모델 로드 실패: {str(e)}")
+    logger.error(f"XGBoost 모델, 스케일러 로드 실패: {str(e)}")
     predictor = None
 
 def index(request):
