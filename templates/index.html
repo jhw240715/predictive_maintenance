@@ -78,13 +78,13 @@
                 <button class="tab-card" data-content="analysis">
                     <div class="card-content">
                         <div class="card-icon">⚠️</div>
-                        <div class="card-title">밀링 머신 고장 유형 및 분석</div>
+                        <div class="card-title">밀링 머신 고장 유형<br>및 분석</div>
                     </div>
                 </button>
                 <button class="tab-card" data-content="prevention">
                     <div class="card-content">
                         <div class="card-icon">🎓</div>
-                        <div class="card-title">밀링 머신 고장 예방 교육</div>
+                        <div class="card-title">밀링 머신 고장<br>예방 교육</div>
                     </div>
                 </button>
                 <button class="tab-card" data-content="mlmodel">
@@ -99,74 +99,101 @@
         <!-- 컨텐츠 섹션들 -->
         <div class="content-section active" id="webpage">
             <h2>웹페이지에 대한 설명</h2>
-            <p>본 웹페이지는 실제 밀링 머신에서 수집된 데이터셋을 활용한 예측 유지보수 시스템입니다. 10,000개의 실제 센서 데이터를 기반으로 6가지 머신러닝 모델을 비교 분석했으며, 그 중 가장 높은 성능을 보인 랜덤포레스트 모델을 시뮬레이터에 적용하여 실시간 고장을 예측합니다.</p>
+            <p style="font-size: 1.1rem; line-height: 1.8;">본 웹페이지는 실제 밀링 머신에서 수집된 데이터셋을 활용한 <strong>예측 유지보수 시스템</strong>입니다.<br> 10,000개의 실제 센서 데이터를 기반으로 6가지 머신러닝 모델을 비교 분석했으며, 그 중 <strong>가장 높은 성능을 보인 XGBoost 모델</strong>을 시뮬레이터에 적용하여 실시간 고장을 예측합니다.</p>
             
             <div class="feature-list">
                 <h3>각 섹션 설명</h3>
                 <ul style="list-style-type: circle; margin-left: 20px;">
-                    <li><small>밀링머신 설명: 여러분들께 이해하기 쉽도록 간략하게 밀링 머신에 대해서 설명 해드립니다.</small></li>
-                    <li><small>밀링 머신 고장 유형 및 분석: 밀링 머신을 작동시킬때 발생할수 있는 고장의 유형에 대해서 알려드리고 고장이 어떤 고장이 어떤 환경에서 자주 발생할 수 있는지에 대해서 설명해드립니다.</small></li>
-                    <li><small>밀링 머신 고장 예방 교육: 밀링 머신을 사용하기 전에 시뮬레이터를 통해 고장을 예방할 수 있도록 교육에 대해서 설명해드립니다.</small></li>
-                    <li><small>머신러닝 모델 설명: 시뮬레이터에 쓰인 모델이 어떤 머신러닝이 쓰였는지와 그에 대한 이유에 대해서 설명해드립니다.</small></li>
+                    <li>
+                        <strong class="section-title">밀링머신 설명:</strong>
+                        <p class="section-description">여러분들께 이해하기 쉽도록 간략하게 밀링 머신에 대해서 설명 해드립니다.</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">밀링 머신 고장 유형 및 분석:</strong>
+                        <p class="section-description">밀링 머신을 작동시킬때 발생할수 있는 고장의 유형에 대해서 알려드리고 어떤 고장이 어떠한 환경에서 자주 발생할 수 있는지에 대해서 설명해드립니다.</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">밀링 머신 고장 예방 교육:</strong>
+                        <p class="section-description">밀링 머신을 사용하기 전에 시뮬레이터를 통해 고장을 예방할 수 있도록 고장 예방 교육에 대해서 설명해드립니다.</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">머신러닝 모델 설명:</strong>
+                        <p class="section-description">시뮬레이터의 알고리즘 모델로 쓸 머신러닝을 선정하기 위해 6가지 머신러닝 후보군에 대해서 설명드리고 이 중에서 어떤 머신러닝이 선정되었는지와 그 이유를 설명해드립니다.</p>
+                    </li>
                 </ul>
                 
                 <h3>사이드바 메뉴</h3>
                 <ul style="list-style-type: circle; margin-left: 20px;">
-                    <li><small>밀링 머신 고장 예방 시뮬레이터: 밀링 머신 고장 예방에 대해서 학습하실 수 있습니다.</small></li>
-                    <li><small>머신러닝 모델: 머신러닝 모델 학습 후보들에 대한 성능 지표를 확인하실 수 있습니다.</small></li>
+                    <li>
+                        <strong class="section-title">밀링 머신 고장 예방 시뮬레이터:</strong>
+                        <p class="section-description">밀링 머신 고장 예방에 대해서 학습하실 수 있습니다.</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">머신러닝 모델:</strong>
+                        <p class="section-description">머신러닝 모델 학습 후보군들에 대한 성능 평가 지표를 확인하실 수 있습니다.</p>
+                    </li>
                 </ul>
             </div>
         </div>
 
         <div class="content-section" id="milling">
             <h2>밀링 머신 설명</h2>
-            <p>밀링 머신은 금속이나 다른 재료를 깎아내는 대표적인 공작 기계이고, 회전하는 공구를 사용하여 다양한 형상의 제품을 정밀하게 가공할 수 있습니다.</p>
+            <p style="font-size: 1.1rem; line-height: 1.8;">밀링 머신은 금속이나 다른 재료를 깎아내는 대표적인 공작 기계이고, 회전하는 공구를 사용하여 다양한 형상의 제품을 정밀하게 가공할 수 있습니다.</p>
             
             <div class="feature-list">
                 <h3>주요 구성 요소</h3>
                 <ul>
-                    <li>주(스핀들)
-                        <br><small>- 공구를 고속으로 회전시키는 핵심 부품</small>
-                        <br><small>- 데이터셋 기준 1168~2886 RPM 범위에서 작동</small>
+                    <li>
+                        <strong class="section-title">주축(스핀들)</strong>
+                        <p class="section-description">- 공구를 고속으로 회전시키는 핵심 부품</p>
+                        <p class="section-description">- 수집된 데이터셋 기준 1168~2886 RPM 범위에서 작동</p>
                     </li>
-                    <li>공구(엔드밀)
-                        <br><small>- 실제 절삭을 수행하는 날이 달린 공구</small>
-                        <br><small>- 데이터셋 기준 최대 253분까지 사용 기록</small>
+                    <li>
+                        <strong class="section-title">절삭 공구(엔드밀)</strong>
+                        <p class="section-description">- 실제 절삭을 수행하는 날이 달린 공구</p>
+                        <p class="section-description">- 데이터셋 기준 최대 253분까지 사용 기록</p>
                     </li>
-                    <li>이송장치
-                        <br><small>- 공작물이나 공구를 이동시키는 장치</small>
-                        <br><small>- 토크 데이터로 부하 상태 모니터링</small>
+                    <li>
+                        <strong class="section-title">이송장치</strong>
+                        <p class="section-description">- 공작물이나 공구를 이동시키는 장치</p>
+                        <p class="section-description">- 토크 데이터로 부하 상태 모니터링</p>
                     </li>
-                    <li>작업대
-                        <br><small>- 가공할 재료를 고정하는 테이블</small>
-                        <br><small>- 공정 온도를 통해 가공 상태 확인</small>
+                    <li>
+                        <strong class="section-title">작업대</strong>
+                        <p class="section-description">- 가공할 재료를 고정하는 테이블</p>
+                        <p class="section-description">- 공정 온도를 통해 가공 상태 확인</p>
                     </li>
                 </ul>
             </div>
             
             <div class="feature-list">
                 <h3>핵심 센서 데이터</h3>
-                <p>데이터셋에서 수집된 5가지 핵심 센서 데이터의 의미:</p>
+                <p style="font-size: 1.1rem; line-height: 1.8;">제조 데이터셋에서 수집된 5가지 핵심 센서 데이터는 다음과 같습니다.</p>
                 <ul>
-                    <li>공기 온도 (Air Temperature)
-                        <br><small>- 측정 범위: 21.6°C ~ 26.2°C</small>
-                        <br><small>- 의미: 26.2°C 초과 시 열 방출 문제 발생 가능성</small>
+                    <li>
+                        <strong class="section-title">공기 온도 (Air Temperature)</strong>
+                        <p class="section-description">- 측정 범위: 295.3K (22.15°C) ~ 304.5K (31.35°C)</p>
+                        <p class="section-description">- 의미: 제조 공정에서 발생한 열이 공기 중으로 퍼져나갔을 때의 온도</p>
                     </li>
-                    <li>공정 온도 (Process Temperature)
-                        <br><small>- 측정 범위: 35.2°C ~ 43.8°C</small>
-                        <br><small>- 의미: 43.8°C 초과 시 공정 실패 위험</small>
+                    <li>
+                        <strong class="section-title">공정 온도 (Process Temperature)</strong>
+                        <p class="section-description">- 측정 범위: 305.7K (32.55°C) ~ 313.8K (40.65°C)</p>
+                        <p class="section-description">- 의미: 밀링 머신의 절삭 공구가 재료를 절삭하면서 발생한 열의 온도</p>
                     </li>
-                    <li>회전 속도 (Rotational Speed)
-                        <br><small>- 측정 범위: 1168 ~ 2886 RPM</small>
-                        <br><small>- 의미: 1168 RPM 미만 시 동력 전달 문제 의심</small>
+                    <li>
+                        <strong class="section-title">회전 속도 (Rotational Speed)</strong>
+                        <p class="section-description">- 측정 범위: 1168 RPM ~ 2886 RPM</p>
+                        <p class="section-description">- 의미: 주축(스핀들)의 회전 속도</p>
                     </li>
-                    <li>토크 (Torque)
-                        <br><small>- 측정 범위: 3.8 ~ 76.6 Nm</small>
-                        <br><small>- 의미: 76.6 Nm 초과 시 과부하 상태</small>
+                    <li>
+                        <strong class="section-title">토크 (Torque)</strong>
+                        <p class="section-description">- 측정 범위: 3.8 Nm~ 76.6 Nm</p>
+                        <p class="section-description">- 의미: 주축(스핀들)이 회전하면서 발생한 힘의 작용</p>
                     </li>
-                    <li>공구 마모 (Tool Wear)
-                        <br><small>- 측정 범위: 0 ~ 253분</small>
-                        <br><small>- 의미: 240분 초과 시 공구 교체 필요</small>
+                    <li>
+                        <strong class="section-title">공구 마모 시간(Tool Wear)</strong>
+                        <p class="section-description">- 측정 범위: 0분 ~ 253분</p>
+                        <p class="section-description">- 의미: 절삭 공구가 재료를 절삭할 때의 마모 시간</p>
                     </li>
                 </ul>
             </div>
@@ -174,39 +201,53 @@
 
         <div class="content-section" id="analysis">
             <h2>밀링 머신 고장 유형 및 분석</h2>
-            <p>실제 현장에서 생하는 주요 고장 유형과 데이터셋 기반 분석:</p>
+            <p style="font-size: 1.1rem; line-height: 1.8;">실제 현장에서 발생하는 주요 고장 유형은 다음과 같습니다.</p>
             <div class="feature-list">
                 <h3>주요 고장 유형</h3>
                 <ul>
-                    <li>공정 실패 (Process Failure)
-                        <br><small>- 현장 증상: 가공 표면 거칠기 증가, 공구 수명 급격한 감소, 절삭 불량</small>
-                        <br><small>- 데이터 특징: 공정 온도 > 43.8°C 또는 토크 > 76.6 Nm</small>
-                        <br><small>- 실제 영향: 제품 품질 불량, 공구 비용 증가, 생산성 저하</small>
-                        <br><small>- 예방 방법: 절삭 속도 조정, 절삭유 공급량 증가, 공구 교체 주기 관리</small>
+                    <li>
+                        <strong class="section-title" style="font-size: 1.1rem;">공구 마모 실패 (Tool Wear Failure)</strong><br>
+                        <br><strong class="section-title">[ 현장 증상 ]</strong>
+                        <p class="section-description">절삭 저항 증가, 가공면 품질 저하, 치수 정밀도 불량</p>
+                        <strong class="section-title">[ 고장 분석 ]</strong>
+                        <p class="section-description">공구 사용 시간 200분 이상일 때 공구를 교체해야 하나 이 때 교체가 실패할 수 있음</p>
+                        <strong class="section-title">[ 실제 영향 ]</strong>
+                        <p class="section-description">제품 불량률 증가, 생산성 저하, 공구 비용 상승</p>
+                        <strong class="section-title">[ 예방 방법 ]</strong>
+                        <p class="section-description">정기적인 공구 검사, 적시 교체, 절삭 조건 최적화, 공구 사용 시간 최적화</p>
                     </li>
-                    <li>열 방출 실패 (Heat Dissipation Failure)
-                        <br><small>- 현장 증상: 작업장 온도 상승, 가공 정밀도 저하, 열 변형</small>
-                        <br><small>- 데이터 특징: 공기 온도 > 26.2°C + 공정 온도 상승</small>
-                        <br><small>- 실제 영향: 열변형으로 인한 수치 정밀도 불량, 작업 환경 악화</small>
-                        <br><small>- 예방 방법: 냉각 시스템 점검, 환기 시설 개선, 작업 시간 조정</small>
+                    <li>
+                        <strong class="section-title" style="font-size: 1.1rem;">열 발산 실패 (Heat Dissipation Failure)</strong><br>
+                        <br><strong class="section-title">[ 현장 증상 ]</strong>
+                        <p class="section-description">작업장 온도 상승, 가공 정밀도 저하, 열 변형</p>
+                        <strong class="section-title">[ 고장 분석 ]</strong>
+                        <p class="section-description">공정 온도와 공기 온도의 차이가 8.6K 미만이고 공구 회전 속도가 1380rpm 미만일 경우 열 발산 가능성 상승 </p>
+                        <strong class="section-title">[ 실제 영향 ]</strong>
+                        <p class="section-description">열 발산으로 인한 수치 정밀도 불량, 작업 환경 악화</p>
+                        <strong class="section-title">[ 예방 방법 ]</strong>
+                        <p class="section-description">노즐 냉각 시스템 점검, 환기 시설 개선, 작업 시간 조정</p>
                     </li>
-                    <li>동력 전달 실패 (Power Failure)
-                        <br><small>- 현장 증상: 비정상적인 소음, 진동 발생, 회전 속도 불안정</small>
-                        <br><small>- 데이터 특징: 회전 속도 < 1168 RPM, 불규칙한 토크 변동</small>
-                        <br><small>- 실제 영향: 베어링 손상, 스핀들 고장, 가공 정밀도 저하</small>
-                        <br><small>- 예방 방법: 정기적인 베어링 점검, 벨트 장력 조정, 윤활유 관리</small>
+                    <li>
+                        <strong class="section-title" style="font-size: 1.1rem;">전력 고장 (Power Failure)</strong><br>
+                        <br><strong class="section-title">[ 현장 증상 ]</strong>
+                        <p class="section-description">비정상적인 소음, 진동 발생, 회전 속도 불안정</p>
+                        <strong class="section-title">[ 고장 분석 ]</strong>
+                        <p class="section-description">전력(토크와 회전 속도의 곱)이 3500W 미만이거나 9000W 초과할 경우 전력 고장 가능성이 상승</p>
+                        <strong class="section-title">[ 실제 영향 ]</strong>
+                        <p class="section-description">베어링 손상, 스핀들 고장, 가공 정밀도 저하</p>
+                        <strong class="section-title">[ 예방 방법]</strong>
+                        <p class="section-description">정기적인 베어링 점검, 벨트 장력 조정, 윤활유 관리</p>
                     </li>
-                    <li>과부하 (Overstrain Failure)
-                        <br><small>- 현장 증상: 가공 중 과도한 진동, 이상 소음, 스핀들 과열</small>
-                        <br><small>- 데이터 특징: 토크 급상승(> 76.6 Nm) 또는 공구 사용 > 240분</small>
-                        <br><small>- 실제 영향: 공구 파손, 스핀들 모터 손상, 작업 중단</small>
-                        <br><small>- 예방 방법: 적정 절입량 준수, 공구 수명 관리, 부하 모니터링</small>
-                    </li>
-                    <li>공구 마모 (Tool Wear Failure)
-                        <br><small>- 현장 증상: 절삭 저항 증가, 가공면 품질 저하, 치수 정밀도 불량</small>
-                        <br><small>- 데이터 특징: 공구 사용 시간 240분 초과, 토크값 점진적 상승</small>
-                        <br><small>- 실제 영향: 제품 불량률 증가, 생산성 저하, 공구 비용 상승</small>
-                        <br><small>- 예방 방법: 정기적인 공구 검사, 적시 교체, 절삭 조건 최적화</small>
+                    <li>
+                        <strong class="section-title" style="font-size: 1.1rem;">제품 과변형 (Overstrain Failure)</strong><br>
+                        <br><strong class="section-title">[ 현장 증상 ]</strong>
+                        <p class="section-description">가공 중 과도한 진동, 이상 소음, 스핀들 과열</p>
+                        <strong class="section-title">[ 고장 분석 ]</strong>
+                        <p class="section-description">공구 사용 시간과 토크의 곱이 제품 품질에 따라 임계점을 초과하면 제품이 크게 변형될 가능성 상승</p>
+                        <strong class="section-title">[ 실제 영향 ]</strong>
+                        <p class="section-description">제품 과변형으로 인한 손실 상승, 공구 파손, 스핀들 모터 손상, 작업 중단</p>
+                        <strong class="section-title">[ 예방 방법 ]</strong>
+                        <p class="section-description">제품 유형에 따라 적정 절입량 준수, 공구 수명 관리, 부하 모니터링</p>
                     </li>
                 </ul>
             </div>
@@ -214,81 +255,145 @@
 
         <div class="content-section" id="prevention">
             <h2>밀링 머신 고장 예방 교육</h2>
-            <p>밀링 머신의 효율적인 운용과 고장 예방을 위한 실무 지침:</p>
+            <p style="font-size: 1.1rem; line-height: 1.8;">밀링 머신의 효율적인 운용과 고장 예방을 위한 실무 지침을 다음과 같이 확인한 뒤 고장 예방 시뮬레이터 사용 전 가이드를 확인하실 수 있습니다.</p>
             <div class="feature-list">
                 <h3>예방 관리 항목</h3>
                 <ul>
-                    <li>일상적인 점검 사항
-                        <br><small>- 작업 시작 전 공구 상태 및 체결 상태 확인</small>
-                        <br><small>- 절삭유 레벨과 상태 점검</small>
-                        <br><small>- 각종 베어링과 이송부의 윤활 상태 확인</small>
+                    <li>
+                        <strong class="section-title">일상적인 점검 사항</strong>
+                        <p class="section-description">- 작업 시작 전 공구 상태 및 체결 상태 확인</p>
+                        <p class="section-description">- 절삭유 레벨과 상태 점검</p>
+                        <p class="section-description">- 각종 베어링과 이송부의 윤활 상태 확인</p>
                     </li>
-                    <li>올바른 가공 조건 설정
-                        <br><small>- 재료 특성에 맞는 적절한 절삭 속도 선택</small>
-                        <br><small>- 공구 직경과 재료에 따른 이송 속도 조정</small>
-                        <br><small>- 적정 절입 깊이 준수</small>
+                    <li>
+                        <strong class="section-title">올바른 가공 조건 설정</strong>
+                        <p class="section-description">- 재료 특성에 맞는 적절한 절삭 속도 선택</p>
+                        <p class="section-description">- 공구 직경과 재료에 따른 이송 속도 조정</p>
+                        <p class="section-description">- 적정 절입 깊이 준수</p>
                     </li>
-                    <li>공구 관리
-                        <br><small>- 공구별 권장 수명 시간 준수</small>
-                        <br><small>- 마모도에 따른 적절한 시점의 공구 교체</small>
-                        <br><small>- 올바른 공구 보관 및 취급</small>
+                    <li>
+                        <strong class="section-title">공구 관리</strong>
+                        <p class="section-description">- 공구별 권장 수명 시간 준수</p>
+                        <p class="section-description">- 마모도에 따른 적절한 시점의 공구 교체</p>
+                        <p class="section-description">- 올바른 공구 보관 및 취급</p>
                     </li>
-                    <li>온도 관리
-                        <br><small>- 작업장 온도 적정 범위 유지 (21-26°C)</small>
-                        <br><small>- 충분한 절삭유 공급으로 가공열 제거</small>
-                        <br><small>- 연속 작업 시 적절한 휴식 시간 확보</small>
+                    <li>
+                        <strong class="section-title">온도 관리</strong>
+                        <p class="section-description">- 작업장 온도 적정 범위 유지 (21-26°C)</p>
+                        <p class="section-description">- 충분한 절삭유 공급으로 가공열 제거</p>
+                        <p class="section-description">- 연속 작업 시 적절한 휴식 시간 확보</p>
                     </li>
                 </ul>
-                <p>시뮬레이터를 통해 고장 예측을 실습해볼 수 있습니다.</p>
+            </div>
+
+            <div class="feature-list">
+                <h3>시뮬레이터 교육 가이드</h3>
+                <ul>
+                    <li>
+                        <strong class="section-title">생산 작동 파라미터</strong>
+                        <p class="section-description">- 센서 데이터 파라미터를 슬라이드 조절 혹은 수치를 입력함으로써 본인이 작업하는 현장의 실시간 데이터를 입력하실 수 있습니다.</p>
+                        <p class="section-description">- <strong>실행 버튼</strong> 눌러 본인이 입력한 데이터를 제출하실 수 있습니다.</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">고장 상태 모니터링</strong>
+                        <p class="section-description">- 입력한 데이터를 바탕으로 밀링 머신에서 정상인지 고장인지, 고장일 경우 어떤 고장인지 메세지를 통해 확인할 수 있습니다.</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">밀링 머신 상태</strong>
+                        <p class="section-description">- <strong>정상</strong>일 경우 3d 모델에 이상이 없지만, <strong>고장</strong>일 경우 3d 모델에 빨간색이 칠해지면서 고장 위치를 확인할 수 있습니다.</p>
+                    </li>
+                </ul>
+
+                <h3>주의 사항</h3>
+                <ul>
+                    <li>
+                        <strong class="section-title">고장 예측 중 공구 마모 실패 (Tool Wear Failure) 제외</strong>
+                        <p class="section-description">분석 데이터셋을 기반으로 고장 예측 성능을 확인한 결과 모든 머신러닝 후보군들에서 <strong>공구 마모 실패 (Tool Wear Failure)의 예측 성능이 매우 낮은 것을 확인</strong>했습니다.
+                        <br>학습하시는 분들께 혼란스럽게 하지 않기 위해서 고장 유형 중 공구 마모 실패에 대한 모니터링은 불가피하게 제외하게 되었습니다.
+                        <br>정말 죄송합니다.
+                        </p>
+                    </li>
+                </ul>
             </div>
         </div>
 
         <div class="content-section" id="mlmodel">
             <h2>머신러닝 모델 설명</h2>
-            <p>본 웹페이지에서 사용된 머신러닝 모델들에 대한 상세 설명입니다:</p>
+            <p style="font-size: 1.1rem; line-height: 1.8;">시뮬레이터에서 사용할 알고리즘 모델을 선정하기 위해 후보군에 둔 6가지 모델들에 대한 간단한 설명입니다.
+            <br> 성능 평가 지표에 대한 설명을 읽어보시고, 좌측 머신러닝 모델 메뉴를 통해 성능 지표를 확인하실 수 있습니다.
+            <br> 또한, 후보군 중에서 <strong>XGBoost</strong>가 왜 가장 좋은 성능을 보이는지에 대한 간략한 이유도 확인하실 수 있습니다.
+            </p>
             <div class="feature-list">
                 <h3>사용된 모델 종류</h3>
                 <ul>
-                    <li>로지스틱 회귀 (Logistic Regression)
-                        <br><small>- 간단하면서도 효과적인 이진 분류 모델</small>
-                        <br><small>- 데이터의 선형적 관계를 잘 포착</small>
+                    <li>
+                        <strong class="section-title">로지스틱 회귀 (Logistic Regression)</strong>
+                        <p class="section-description">- 간단하면서도 효과적인 이진 분류 모델</p>
+                        <p class="section-description">- 데이터의 선형적 관계를 잘 포착</p>
                     </li>
-                    <li>K-최근접 이웃 (KNN)
-                        <br><small>- 데이터 포인트 간의 거리를 기반으로 분류</small>
-                        <br><small>- 비선형적 패턴도 잘 학습</small>
+                    <li>
+                        <strong class="section-title">K-최근접 이웃 (KNN)</strong>
+                        <p class="section-description">- 데이터 포인트 간의 거리를 기반으로 분류하는 모델</p>
+                        <p class="section-description">- 비선형적 패턴도 잘 학습</p>
                     </li>
-                    <li>서포트 벡터 머신 (SVM)
-                        <br><small>- 데이터를 고차원 공간에서 분리</small>
-                        <br><small>- 복잡한 결정 경계를 효과적으로 학습</small>
+                    <li>
+                        <strong class="section-title">서포트 벡터 머신 (SVM)</strong>
+                        <p class="section-description">- 데이터를 고차원 공간에서 분류하는 모델</p>
+                        <p class="section-description">- 복잡한 결정 경계를 효과적으로 학습</p>
                     </li>
-                    <li>의사결정트리 (Decision Tree)
-                        <br><small>- 직관적이고 해석하기 쉬운 모델</small>
-                        <br><small>- 특성 중요도 파악이 용이</small>
+                    <li>
+                        <strong class="section-title">의사결정트리 (Decision Tree)</strong>
+                        <p class="section-description">- 직관적이고 해석하기 쉬운 모델</p>
+                        <p class="section-description">- 특성 중요도 파악이 용이</p>
                     </li>
-                    <li>랜덤 포레스트 (Random Forest)
-                        <br><small>- 여러 의사결정트리의 앙상블 모델</small>
-                        <br><small>- 과적합 위험이 적고 안정적인 성능</small>
+                    <li>
+                        <strong class="section-title">랜덤 포레스트 (Random Forest)</strong>
+                        <p class="section-description">- 여러 의사결정트리의 앙상블 모델</p>
+                        <p class="section-description">- 과적합 위험이 적고 안정적인 성능</p>
                     </li>
-                    <li>XGBoost
-                        <br><small>- 그래디언트 부스팅 기반의 고성능 모델</small>
-                        <br><small>- 높은 예측 정확도와 빠른 학습 속도</small>
+                    <li>
+                        <strong class="section-title">XGBoost (Extreme Gradient Boosting)</strong>
+                        <p class="section-description">- 효율적이고 높은 성능을 보여주는 부스팅 앙상블 모델 </p>
+                        <p class="section-description">- 높은 예측 정확도와 대규모 데이터 처리 가능</p>
                     </li>
                 </ul>
 
                 <h3>성능 지표</h3>
                 <ul style="list-style-type: circle; margin-left: 20px;">
-                    <li><small>정확도(Accuracy): 전체 예측 중 올바르게 예측한 비율
-                        <br>→ 예: 100건의 예측 중 98건을 올바르게 예측하면 98% 정확도</small></li>
-                    <li><small>정밀도(Precision): 고장이라고 예측한 것 중 실제 고장인 비율
-                        <br>→ 예: 고장이라고 예측한 10건 중 9건이 실제 고장이면 90% 정밀도</small></li>
-                    <li><small>재현율(Recall): 실제 고장 중 고장이라고 예측한 비율
-                        <br>→ 예: 실제 고장 20건 중 18건을 고장이라고 예측하면 90% 재현율</small></li>
-                    <li><small>F1-Score: 정밀도와 재현율의 조화평균
-                        <br>→ 정밀도와 재현율을 함께 고려한 종합 점수</small></li>
-                    <li><small>ROC 곡선: 모델의 성능을 시각화한 그래프
-                        <br>→ 곡선이 왼쪽 위 모서리에 가까울수록 좋은 성능</small></li>
-                    <li><small>혼동 행렬: 예측과 실제 결과를 비교한 표
-                        <br>→ 정상/고장 예측이 얼마나 정확했는지 한눈에 파악</small></li>
+                    <li>
+                        <strong class="section-title">정확도(Accuracy)</strong>: 전체 예측 중 올바르게 예측한 비율
+                        <p class="section-description">→ 예: 100건의 예측 중 98건을 올바르게 예측하면 98% 정확도</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">정밀도(Precision)</strong>: 고장이라고 예측한 것 중 실제 고장인 비율
+                        <p class="section-description">→ 예: 고장이라고 예측한 10건 중 9건이 실제 고장이면 90% 정밀도</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">재현율(Recall)</strong>: 실제 고장 중 고장이라고 예측한 비율
+                        <p class="section-description">→ 예: 실제 고장 20건 중 18건을 고장이라고 예측하면 90% 재현율</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">F1-Score</strong>: 정밀도와 재현율의 조화평균
+                        <p class="section-description">→ 정밀도와 재현율을 함께 고려한 종합 점수이며 예측 성능의 종합적인 성능 지표입니다. <br>1에 가까울수록 좋은 성능을 의미합니다.</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">ROC 곡선</strong>: 모델의 성능을 시각화한 그래프
+                        <p class="section-description">→ 분류 모델의 성능을 평가하는 곡선으로, 곡선이 왼쪽 위 모서리에 가까울수록 좋은 성능을 의미합니다.<br>(곡선 아래의 면적인 AUC가 클수록 좋은 성능을 나타냅니다.)</p>
+                    </li>
+                    <li>
+                        <strong class="section-title">혼동 행렬</strong>: 예측 결과와 실제 값을 비교하여 정리한 표
+                        <p class="section-description">→ 정상/고장 예측이 얼마나 정확했는지 한눈에 파악하기 쉽습니다.<br> '\' 대각선에 숫자가 모일수록 좋은 성능을 나타냅니다.</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="feature-list">
+                <h3>XGBoost가 시뮬레이터 알고리즘 모델로 선정된 이유</h3>
+                <ul style="list-style-type: square; margin-left: 20px;">
+                    <li>
+                        성능 평가 지표를 확인해본 결과, 정상과 각각의 고장 유형에 대해서 다른 모델들에 비해 전반적으로 높은 성능을 갖고 있습니다.
+                        <br> 이제 대한 증거로 각 유형별 F1-score나 ROC 곡선의 AUC 면적 등을 확인할 수 있습니다.
+                    </li>
                 </ul>
             </div>
         </div>
