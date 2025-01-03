@@ -15,26 +15,41 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
     const airTempSlider = document.querySelector('input[name="air_temperature"]');      // 공기 온도 슬라이더
     const processTempSlider = document.querySelector('input[name="process_temperature"]'); // 공정 온도 슬라이더
 
+    const TEMP_DIFF_MIN = 7.6;  // 최소 온도 차이
+    const TEMP_DIFF_MAX = 12.1; // 최대 온도 차이
+
     // Air Temperature 변경 시 이벤트 처리
-    airTempSlider.addEventListener('input', function() {
+    airTempSlider.addEventListener('input', function () {
         const airTemp = parseFloat(this.value);
         const processTemp = parseFloat(processTempSlider.value);
-        
-        // 공기 온도가 공정 온도보다 높아지지 않도록 제한
-        if (airTemp >= processTemp) {
-            this.value = (processTemp - 0.1).toFixed(1);  // 공정 온도보다 0.1 낮게 설정
+        const tempDiff = processTemp - airTemp;
+
+        // 온도 차이가 범위를 벗어날 경우에만 오류 메시지 표시 (7.6K와 12.1K는 허용)
+        if (tempDiff < TEMP_DIFF_MIN || tempDiff > TEMP_DIFF_MAX) {
+            alert(`온도차는 ${TEMP_DIFF_MIN}K에서 ${TEMP_DIFF_MAX}K 사이여야 합니다`);
+
+            // 온도 차이를 유효한 범위 내로 조정
+            if (tempDiff < TEMP_DIFF_MIN) {
+                this.value = (processTemp - TEMP_DIFF_MIN).toFixed(1);  // 7.6K로 조정
+            } else if (tempDiff > TEMP_DIFF_MAX) {
+                this.value = (processTemp - TEMP_DIFF_MAX).toFixed(1);  // 12.1K로 조정
+            }
             updateSliderStatus(this, this.value);
         }
     });
 
     // Process Temperature 변경 시 이벤트 처리
-    processTempSlider.addEventListener('input', function() {
+    processTempSlider.addEventListener('input', function () {
         const processTemp = parseFloat(this.value);
         const airTemp = parseFloat(airTempSlider.value);
-        
-        // 공정 온도가 공기 온도보다 낮아지지 않도록 제한
-        if (processTemp <= airTemp) {
-            airTempSlider.value = (processTemp - 0.1).toFixed(1);
+        const tempDiff = processTemp - airTemp;
+
+        // 공정 온도가 변경될 때 공기 온도를 자동으로 조정
+        if (tempDiff < TEMP_DIFF_MIN) {
+            airTempSlider.value = (processTemp - TEMP_DIFF_MIN).toFixed(1);  // 7.6K로 조정
+            updateSliderStatus(airTempSlider, airTempSlider.value);
+        } else if (tempDiff > TEMP_DIFF_MAX) {
+            airTempSlider.value = (processTemp - TEMP_DIFF_MAX).toFixed(1);  // 12.1K로 조정
             updateSliderStatus(airTempSlider, airTempSlider.value);
         }
     });
@@ -125,12 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
         };
     }
 
-    // 예측 요청을 디바운스 처리하는 함수
-    const debouncedRequestPrediction = debounce((formData) => {
-        requestPrediction(formData);
-    }, 500); // 500ms 딜레이로 연속 호출 제한
-
-    // 슬라이더 상태 업데이트 함수 (값과 시각적 표시 업데이트)
+    // 슬라이더 상태 업데이트 함수 (예측 실행 없이 값만 업데이트)
     function updateSliderStatus(slider, value) {
         const container = slider.closest('.slider-container');
         if (!container) return;
@@ -140,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
 
         if (valueDisplay && track) {
             valueDisplay.textContent = value;  // 현재 값 표시
-
             const status = evaluateParameterStatus(slider.name, value);  // 상태 평가
 
             // 이전 상태 클래스 제거
@@ -186,12 +195,12 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
             console.error('예측 결과 표시 요소를 찾을 수 없습니다.');
             return;
         }
-        
+
         console.log('고장 상태 업데이트:', prediction);
-        
+
         // 이전 상태 클래스 제거
         displayElement.classList.remove('normal', 'heat-failure', 'power-failure', 'overstrain', 'error');
-        
+
         // 예측 결과가 없는 경우 처리
         if (!prediction || typeof prediction.class === 'undefined') {
             displayElement.textContent = '예측 결과를 받아올 수 없습니다.';
@@ -200,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
         }
 
         // 예측 결과에 따라 상태 표시
-        switch(prediction.class) {
+        switch (prediction.class) {
             case 0:
                 displayElement.classList.add('normal');
                 displayElement.textContent = '정상';
@@ -239,13 +248,13 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
         try {
             // 데이터 전처리
             const processedData = calculateDerivedFeatures(formData);
-            
+
             // CSRF 토큰 추가
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             processedData.append('csrfmiddlewaretoken', csrfToken);
-            
+
             console.log('전송할 데이터:', Object.fromEntries(processedData));
-            
+
             // 서버에 예측 요청
             const response = await fetch('/api/predict/', {
                 method: 'POST',
@@ -261,11 +270,11 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
 
             const result = await response.json();
             console.log('서버 응답:', result);
-            
+
             if (result.status === 'error') {
                 throw new Error(result.message);
             }
-            
+
             // 예측 결과 변환
             const predictionMap = {
                 'none': 0,  // 정상
@@ -273,25 +282,25 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
                 'PWF': 3,   // 전력 고장
                 'OSF': 4    // 과부하 고장
             };
-            
+
             const prediction = {
                 class: predictionMap[result.prediction]
             };
 
             console.log('변환된 예측 결과:', prediction);
-            
+
             // 1. 고장 상태 모니터링 업데이트
             updatePredictionDisplay(prediction);
-            
+
             // 2. 예측 결과 표시 업데이트
             const predictionResult = document.getElementById('prediction-result');
             const predictionText = document.getElementById('prediction-text');
-            
+
             if (predictionResult && predictionText) {
                 predictionResult.classList.remove('hidden');
                 predictionText.textContent = getPredictionText(prediction.class);
             }
-            
+
             // 3. 3D 모델 상태 업데이트
             if (window.millingMachineVisualization) {
                 try {
@@ -306,12 +315,12 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
                     console.warn('3D 모델 업데이트 중 오류:', error);
                 }
             }
-            
+
         } catch (error) {
             console.error('예측 요청 오류:', error);
             const predictionResult = document.getElementById('prediction-result');
             const predictionDisplay = document.getElementById('prediction-display');
-            
+
             // 에러 메시지 표시
             if (predictionResult) {
                 predictionResult.classList.remove('hidden');
@@ -340,10 +349,24 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
         return predictionMap[predictionClass] || '알 수 없는 예측 결과';
     }
 
-    // 이벤트 리스너 설정
-    sliders.forEach(slider => {  // 각 슬라이더에 이벤트 리스너 추가
+    // 슬라이더 이벤트 리스너 설정
+    sliders.forEach(slider => {
         slider.addEventListener('input', function () {
             const value = this.value;
+            const paramName = this.name;
+
+            // 숫자 입력 필드 업데이트
+            const input = document.querySelector(`input[name="${paramName}_input"]`);
+            if (input) {
+                input.value = value;
+            }
+
+            // 값 표시 업데이트
+            const valueDisplay = document.getElementById(`${paramName.replace('_', '-')}-value`);
+            if (valueDisplay) {
+                valueDisplay.textContent = value;
+            }
+
             updateSliderStatus(this, value);
         });
     });
@@ -356,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
         });
     });
 
-    // 폼 제출 이벤트 처리
+    // 폼 제출 이벤트에서만 예측 실행
     parameterForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -373,6 +396,76 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
     sliders.forEach(slider => {
         updateSliderStatus(slider, slider.value);
     });
+
+    // 숫자 입력 필드 이벤트 리스너
+    document.querySelectorAll('.parameter-input').forEach(input => {
+        // 입력 중에는 자유롭게 입력 가능
+        input.addEventListener('input', function () {
+            if (this.value === '') return;
+
+            const paramName = this.name.replace('_input', '');
+            const slider = document.querySelector(`input[name="${paramName}"]`);
+            if (slider) {
+                slider.value = this.value;
+                const valueDisplay = document.getElementById(`${paramName.replace('_', '-')}-value`);
+                if (valueDisplay) {
+                    valueDisplay.textContent = this.value;
+                }
+            }
+        });
+
+        // 포커스를 잃었을 때만 검증
+        input.addEventListener('blur', function () {
+            if (this.value === '') {
+                this.value = this.min;
+                return;
+            }
+
+            const value = parseFloat(this.value);
+            if (isNaN(value)) {
+                this.value = this.min;
+                return;
+            }
+
+            const paramName = this.name.replace('_input', '');
+            const slider = document.querySelector(`input[name="${paramName}"]`);
+
+            if (slider) {
+                const min = parseFloat(this.min);
+                const max = parseFloat(this.max);
+
+                // 범위 체크
+                if (value < min) {
+                    alert(`입력값은 ${min} 이상이어야 합니다.`);
+                    this.value = min;
+                } else if (value > max) {
+                    alert(`입력값은 ${max} 이하여야 합니다.`);
+                    this.value = max;
+                }
+
+                slider.value = this.value;
+                updateSliderValue(slider);
+
+                // 온도 차이 검사
+                if (paramName === 'air_temperature' || paramName === 'process_temperature') {
+                    const airTemp = parseFloat(document.querySelector('input[name="air_temperature"]').value);
+                    const processTemp = parseFloat(document.querySelector('input[name="process_temperature"]').value);
+                    const tempDiff = processTemp - airTemp;
+
+                    if (tempDiff < TEMP_DIFF_MIN || tempDiff > TEMP_DIFF_MAX) {
+                        alert(`온도차는 ${TEMP_DIFF_MIN}K에서 ${TEMP_DIFF_MAX}K 사이여야 합니다.`);
+                        if (paramName === 'air_temperature') {
+                            this.value = (processTemp - TEMP_DIFF_MIN).toFixed(1);
+                        } else {
+                            this.value = (airTemp + TEMP_DIFF_MIN).toFixed(1);
+                        }
+                        slider.value = this.value;
+                        updateSliderValue(slider);
+                    }
+                }
+            }
+        });
+    });
 });
 
 // 가이드 토글 함수 - 사용자 가이드 표시/숨김
@@ -387,9 +480,9 @@ function toggleGuide() {
 function checkWebGL() {
     try {
         const canvas = document.createElement('canvas');
-        return !!(window.WebGLRenderingContext && 
+        return !!(window.WebGLRenderingContext &&
             (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
-    } catch(e) {
+    } catch (e) {
         return false;
     }
 }
@@ -426,7 +519,7 @@ async function initializeSimulator() {
         window.millingMachineVisualization = new MillingMachineVisualization('machine-visualization');
         hideLoadingIndicator();
         console.log('시뮬레이터 초기화 완료');
-        
+
     } catch (error) {
         showErrorMessage(`시뮬레이터 초기화 실패: ${error.message}`);
         console.error('초기화 상세 오류:', error);

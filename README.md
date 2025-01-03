@@ -1,7 +1,29 @@
 # 밀링 머신 예측 유지보수 시스템
 
 ## 프로젝트 소개
-이 프로젝트는 밀링 머신의 작동 파라미터를 모니터링하고 잠재적인 고장을 예측하는 시스템입니다. 작업자들이 실시간으로 기계의 상태를 확인하고 예방 조치를 취할 수 있도록 도와줍니다.
+이 프로젝트는 밀링 머신의 작동 파라미터를 모니터링하고 잠재적인 고장을 예측하는 시스템입니다. 
+작업자들이 실시간으로 기계의 상태를 확인하고 예방 조치를 취할 수 있도록 도와줍니다.
+
+## 환경 변수 설정
+
+프로젝트는 두 가지 방식의 환경 변수 로드를 지원합니다:
+
+1. django-environ 사용:
+```python
+import environ
+env = environ.Env()
+environ.Env.read_env(
+    env_file=os.path.join(BASE_DIR, '.env')
+)
+```
+
+2. python-dotenv 사용:
+```python
+from dotenv import load_dotenv
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+```
+
+두 패키지 모두 requirements.txt에 포함되어 있으므로, 원하는 방식을 선택하여 사용하시면 됩니다.
 
 ## 설치 방법
 
