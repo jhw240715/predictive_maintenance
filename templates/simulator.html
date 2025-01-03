@@ -63,7 +63,11 @@
                         <!-- Air Temperature -->
                         <div class="slider-container">
                             <div class="slider-header">
-                                <label class="slider-label">Air Temperature [K]</label>
+                                <div class="label-input-group">
+                                    <label class="slider-label">Air Temperature [K]</label>
+                                    <input type="number" class="parameter-input" name="air_temperature_input" 
+                                           min="295.3" max="304.5" step="0.1" value="295.3">
+                                </div>
                                 <span class="slider-value normal" id="air-temperature-value">295.3</span>
                             </div>
                             <div class="slider-track normal">
@@ -76,7 +80,11 @@
                         <!-- Process Temperature -->
                         <div class="slider-container">
                             <div class="slider-header">
-                                <label class="slider-label">Process Temperature [K]</label>
+                                <div class="label-input-group">
+                                    <label class="slider-label">Process Temperature [K]</label>
+                                    <input type="number" class="parameter-input" name="process_temperature_input" 
+                                           min="305.7" max="313.8" step="0.1" value="305.7">
+                                </div>
                                 <span class="slider-value normal" id="process-temperature-value">305.7</span>
                             </div>
                             <div class="slider-track normal">
@@ -89,7 +97,11 @@
                         <!-- Rotational Speed -->
                         <div class="slider-container">
                             <div class="slider-header">
-                                <label class="slider-label">Rotational Speed [rpm]</label>
+                                <div class="label-input-group">
+                                    <label class="slider-label">Rotational Speed [rpm]</label>
+                                    <input type="number" class="parameter-input" name="rotational_speed_input" 
+                                           min="1168" max="2886" step="1" value="1168">
+                                </div>
                                 <span class="slider-value normal" id="rotational-speed-value">1168</span>
                             </div>
                             <div class="slider-track normal">
@@ -102,7 +114,11 @@
                         <!-- Torque -->
                         <div class="slider-container">
                             <div class="slider-header">
-                                <label class="slider-label">Torque [Nm]</label>
+                                <div class="label-input-group">
+                                    <label class="slider-label">Torque [Nm]</label>
+                                    <input type="number" class="parameter-input" name="torque_input" 
+                                           min="3.8" max="76.6" step="0.1" value="3.8">
+                                </div>
                                 <span class="slider-value normal" id="torque-value">3.8</span>
                             </div>
                             <div class="slider-track normal">
@@ -115,12 +131,16 @@
                         <!-- Tool Wear -->
                         <div class="slider-container">
                             <div class="slider-header">
-                                <label class="slider-label">Tool Wear [min]</label>
+                                <div class="label-input-group">
+                                    <label class="slider-label">Tool Wear [min]</label>
+                                    <input type="number" class="parameter-input" name="tool_wear_input" 
+                                           min="0" max="253" step="1" value="0">
+                                </div>
                                 <span class="slider-value normal" id="tool-wear-value">0</span>
                             </div>
                             <div class="slider-track normal">
                                 <input type="range" name="tool_wear" 
-                                       min="0" max="253" step="1"
+                                       min="0" max="253" step="1" 
                                        value="0">
                             </div>
                             <div class="warning-text" style="color: #ff6b6b; font-size: 0.9em; margin-top: 5px;">

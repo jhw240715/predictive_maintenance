@@ -20,8 +20,9 @@
 /* 좌측 밀링머신 시각화 영역 */
 .simulator-left {
     position: relative;
-    height: 100%;    /* 전체높이 */
-    display: flex;   
+    height: 100%;
+    /* 전체높이 */
+    display: flex;
     flex-direction: column;
     min-width: 0;
 }
@@ -31,12 +32,14 @@
     border-radius: 0.75rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    height: 1437px; /* 상하 크기 조절 */
+    height: 1437px;
+    /* 상하 크기 조절 */
     display: flex;
     flex-direction: column;
     position: relative;
     left: -18%;
-    width: 100%; /* 좌우 크기 조절 */
+    width: 100%;
+    /* 좌우 크기 조절 */
 }
 
 /* 3D 시각화 컨테이너 */
@@ -298,13 +301,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
 }
 
 .slider-label {
-    font-size: 0.875rem;
+    font-size: 14px;
     font-weight: 500;
     color: #374151;
+    white-space: nowrap;
 }
 
 .slider-value {
@@ -535,6 +539,14 @@ input[type="range"]::-webkit-slider-thumb {
     .slider-value {
         min-width: 3rem;
     }
+
+    .label-input-group {
+        gap: 8px;
+    }
+
+    .parameter-input {
+        width: 60px;
+    }
 }
 
 /* 가이드 리스트 스타일 */
@@ -544,11 +556,11 @@ input[type="range"]::-webkit-slider-thumb {
     margin: 0;
 }
 
-.guide-list > li {
+.guide-list>li {
     margin-bottom: 1rem;
 }
 
-.guide-list > li:last-child {
+.guide-list>li:last-child {
     margin-bottom: 0;
 }
 
@@ -595,15 +607,18 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* 각 섹션의 높이 조정 */
 .content-section:first-child {
-    flex: 0 0 auto;  /* 교육 가이드 */
+    flex: 0 0 auto;
+    /* 교육 가이드 */
 }
 
 .content-section:nth-child(2) {
-    flex: 1 1 auto;  /* 생산 작동 파라미터 */
+    flex: 1 1 auto;
+    /* 생산 작동 파라미터 */
 }
 
 .content-section:last-child {
-    flex: 0 0 auto;  /* 고장 상태 모니터링 */
+    flex: 0 0 auto;
+    /* 고장 상태 모니터링 */
 }
 
 /* 슬라이더 컨테이너 여백 조정 */
@@ -622,19 +637,19 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* 교육 가이드 카드 */
-.simulator-right > .card:first-child {
+.simulator-right>.card:first-child {
     flex: 0 0 auto;
     min-height: 200px;
 }
 
 /* 생산 작동 파라미터 카드 */
-.simulator-right > .card:nth-child(2) {
+.simulator-right>.card:nth-child(2) {
     flex: 1 0 auto;
     min-height: 400px;
 }
 
 /* 고장 상태 모니터링 카드 */
-.simulator-right > .card:last-child {
+.simulator-right>.card:last-child {
     flex: 0 0 auto;
     min-height: 150px;
 }
@@ -787,6 +802,7 @@ input[type="range"]::-webkit-slider-thumb {
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -798,6 +814,7 @@ input[type="range"]::-webkit-slider-thumb {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -807,6 +824,7 @@ input[type="range"]::-webkit-slider-thumb {
 .guide-purpose {
     animation: fadeInUp 0.5s ease-out;
 }
+
 .prediction-result {
     margin-top: 1rem;
     padding: 1rem;
@@ -865,4 +883,67 @@ input[type="range"]::-webkit-slider-thumb {
 #prediction-display.error {
     background-color: #6b7280;
     color: white;
+}
+
+.label-input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.parameter-input {
+    width: 70px;
+    height: 24px;
+    padding: 2px 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: right;
+    color: #374151;
+    background-color: white;
+    position: relative;
+}
+
+.parameter-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Chrome, Safari, Edge의 기본 스핀 버튼 스타일 제거 */
+.parameter-input::-webkit-outer-spin-button,
+.parameter-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox의 기본 스핀 버튼 스타일 제거 */
+.parameter-input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* 커스텀 스핀 버튼 스타일 */
+.parameter-input-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.parameter-input-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 16px;
+    background-color: #f3f4f6;
+    border-left: 1px solid #e5e7eb;
+    border-radius: 0 4px 4px 0;
+    pointer-events: none;
+}
+
+/* 모바일 대응 */
+@media (max-width: 640px) {
+    .parameter-input {
+        width: 60px;
+    }
 }
