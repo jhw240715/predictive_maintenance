@@ -17,7 +17,7 @@ environ.Env.read_env(
 SECRET_KEY = env('SECRET_KEY')
 
 # DEBUG 설정 (기본값 False)
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
