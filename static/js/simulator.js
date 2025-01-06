@@ -46,10 +46,20 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
 
         // 공정 온도가 변경될 때 공기 온도를 자동으로 조정
         if (tempDiff < TEMP_DIFF_MIN) {
-            airTempSlider.value = (processTemp - TEMP_DIFF_MIN).toFixed(1);  // 7.6K로 조정
+            airTempSlider.value = (processTemp - TEMP_DIFF_MIN).toFixed(1);  // 7.7K로 조정
+            // 공기 온도 숫자 입력칸도 업데이트
+            const airTempInput = document.querySelector('input[name="air_temperature_input"]');
+            if (airTempInput) {
+                airTempInput.value = airTempSlider.value;
+            }
             updateSliderStatus(airTempSlider, airTempSlider.value);
         } else if (tempDiff > TEMP_DIFF_MAX) {
-            airTempSlider.value = (processTemp - TEMP_DIFF_MAX).toFixed(1);  // 12.1K로 조정
+            airTempSlider.value = (processTemp - TEMP_DIFF_MAX).toFixed(1);  // 12.0K로 조정
+            // 공기 온도 숫자 입력칸도 업데이트
+            const airTempInput = document.querySelector('input[name="air_temperature_input"]');
+            if (airTempInput) {
+                airTempInput.value = airTempSlider.value;
+            }
             updateSliderStatus(airTempSlider, airTempSlider.value);
         }
     });
