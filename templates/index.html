@@ -391,10 +391,90 @@
                 <h3>XGBoost가 시뮬레이터 알고리즘 모델로 선정된 이유</h3>
                 <ul style="list-style-type: square; margin-left: 20px;">
                     <li>
-                        성능 평가 지표를 확인해본 결과, 정상과 각각의 고장 유형에 대해서 다른 모델들에 비해 전반적으로 높은 성능을 갖고 있습니다.
-                        <br> 이제 대한 증거로 각 유형별 F1-score나 ROC 곡선의 AUC 면적 등을 확인할 수 있습니다.
+                        Macro F1-score는 다중 클래스 분류에서 성능을 종합적으로 평가하는 지표입니다.
+                        <br>Macro F1-score는 모든 클래스에 동일한 가중치를 부여하여 평가하기 때문에 소수 클래스(고장 유형)의 F1-score의 값이 중요할 경우 사용되는 지표입니다.
+                        <br>표에서 보여지는 것처럼 Macro F1-score는 랜덤포레스트와 XGBoost에서 가장 높은 값을 보여주고 있습니다.
                     </li>
                 </ul>
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>머신러닝 모델명</th>
+                            <th>Macro F1-Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>로지스틱 회귀</td>
+                            <td>0.5002</td>
+                        </tr>
+                        <tr>
+                            <td>KNN</td>
+                            <td>0.6083</td>
+                        </tr>
+                        <tr>
+                            <td>SVM</td>
+                            <td>0.6631</td>
+                        </tr>
+                            <tr>
+                                <td>의사결정트리</td>
+                                <td>0.7407</td>
+                            </tr>
+                            <tr>
+                                <td>랜덤포레스트</td>
+                                <td>0.7684</td>
+                            </tr>
+                            <tr>
+                                <td>XGBoost</td>
+                                <td>0.7582</td>
+                            </tr>
+                    </tbody>
+                </table>
+                <ul style="list-style-type: square; margin-left: 20px;">
+                    <style>
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        th, td {
+                            padding: 12px;
+                            text-align: center;
+                            border: 1px solid #ddd;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                        .highlight {
+                            background-color: #eaf7e0;
+                        }
+                    </style>
+                    <li>
+                        랜덤포레스트와 XGBoost 중 XGBoost를 선택한 이유는 향후 추가적인 데이터 수집을 통해 성능을 개선시키는 데에 있어 XGBoost가 더 강점이 있기 때문입니다.
+                        <br>XGBoost는 강력한 하이퍼 파라미터 튜닝을 할 수가 있으며 성능 최적화가 뛰어나기 때문에 향후 개선까지 고려해 XGBoost를 알고리즘 모델로 선정했습니다.
+                    </li>
+                </ul>
+                <table>
+        <thead>
+            <tr>
+                <th>모델</th>
+                <th>성능 개선 가능성</th>
+                <th>강점</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>랜덤 포레스트 (Random Forest)</td>
+                <td>상대적으로 느리며, 하이퍼 파라미터 튜닝이 복잡</td>
+                <td>클래스 간 균형을 잘 맞추며, 데이터 전처리 및 튜닝이 비교적 간단</td>
+            </tr>
+            <tr>
+                <td>XGBoost</td>
+                <td class="highlight">더 나은 성능을 위해 강력한 하이퍼파라미터 튜닝 가능, 더 빠르고 효과적</td>
+                <td class="highlight">성능 최적화가 뛰어나고, 대규모 데이터셋에서 뛰어난 성능을 발휘하며, 다양한 하이퍼파라미터를 통해 세밀한 튜닝 가능</td>
+            </tr>
+        </tbody>
+    </table>
             </div>
         </div>
     </div>
