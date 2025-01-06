@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', function () {  // DOM이 로드된
     const airTempSlider = document.querySelector('input[name="air_temperature"]');      // 공기 온도 슬라이더
     const processTempSlider = document.querySelector('input[name="process_temperature"]'); // 공정 온도 슬라이더
 
-    const TEMP_DIFF_MIN = 7.6;  // 최소 온도 차이
-    const TEMP_DIFF_MAX = 12.1; // 최대 온도 차이
+    const TEMP_DIFF_MIN = 7.7;  // 최소 온도차
+    const TEMP_DIFF_MAX = 12.0;  // 최대 온도차
 
     // Air Temperature 변경 시 이벤트 처리
     airTempSlider.addEventListener('input', function () {
