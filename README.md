@@ -82,6 +82,9 @@ python manage.py runserver
 - 온도 차이는 7.6K에서 12.1K 사이로 유지
 - 전력 소비량이 20kW를 초과하지 않도록 관리
 
+## 시연 영상 (아래 썸네일 클릭)
+[![Video Label](http://img.youtube.com/vi/BJPiy3c1L6A/0.jpg)](https://youtu.be/BJPiy3c1L6A)
+
 ## 발표자료
 ![Image](https://github.com/user-attachments/assets/67aca0f7-bf01-4773-9544-b700c9ae6b6f)
 ![Image](https://github.com/user-attachments/assets/6d2f89c8-e36c-4785-8210-3efc745c6c58)
